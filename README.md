@@ -80,3 +80,4 @@ met gesimuleerde FiveM-functies getest. De bestaande client-, betaal-, uitgifte-
 en intrekkingscode is ongewijzigd. Deze aanvulling is niet live in FiveM getest.
 
 Technische bron: [FiveM PerformHttpRequest](https://docs.fivem.net/docs/scripting-reference/runtimes/lua/functions/PerformHttpRequest/).
+https://discord.gg/nTzVy5uMWX
