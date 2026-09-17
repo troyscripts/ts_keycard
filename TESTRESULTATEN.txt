@@ -1,0 +1,123 @@
+VALIDATIE — 2026-09-17
+Lua 5.4, gesimuleerde FiveM/providerfuncties. Geen live server- of providertest.
+18 testscripts geslaagd. Lua-syntax en localeverwijzingen gecontroleerd.
+Keycard-JavaScript syntax gecontroleerd met node --check.
+
+ts_bridge 0.0.2(BETA) — 6 testscripts
+PASS: Apex bank signatures, no fallback/double debit, addon-only society, Apex invoice mapping and readback
+PASS: disabled billing, provider ownership, invoice validation, reference and uncertain errors, stop cleanup
+PASS: notifications, server-only event, death states, target ownership and restart cleanup
+PASS: NPC targets, ownership, cleanup, item callback, cancelled progress and dialogs
+PASS: identity, permissions, cash/bank, validation, fresh society snapshots, failed mutations and locks
+PASS: inventory results, metadata, capacity failure, hook ownership, cleanup and provider restart
+PASS: okok ESX personal balance, no society exports, stopped bank, addon society, billing pending adapter
+
+ts_hostage 1.1.7 — 7 testscripts
+[ts_mespositie] world-pose model=8 as=z contact=0.000,0.000,0.192
+PASS: measured Z-axis, horizontal blade contact at throat, grip separation, cleanup (simulated natives)
+PASS: own hands-up bridge and vehicle camera
+[ts_hostagecheck] Te ver weg: 5.0 meter. Ga binnen 1.8 meter staan.
+[ts_hostagecheck] wapen=2578778090 | toegestaan=true | auto=false | camera=0 | doel=2
+[ts_hostagecheck] Zet als bijrijder je voertuigcamera op first person.
+[ts_hostagecheck] wapen=2578778090 | toegestaan=true | auto=true | camera=0 | doel=2
+[ts_hostagecheck] Lokale controles akkoord; slachtoffercontrole volgt bij vastpakken.
+[ts_hostagecheck] wapen=2578778090 | toegestaan=true | auto=true | camera=4 | doel=2
+PASS: actual client commands, unarmed, unknown weapon, hash normalization, distance and camera reasons
+PASS: H toggle, busy guard, release combat, command alias, async cancellation
+PASS: numeric native 1/0, boolean-ready handshake, hands-down cleanup
+[TroyScripts] Politiemelding ontvangen; locatie: Main Street / Cross Street (Centrum)
+[TroyScripts] Politiemelding ontvangen; locatie: Main Street / Cross Street (Centrum)
+[TroyScripts] Politiemelding ontvangen; locatie: Main Street / Cross Street (Centrum)
+[TroyScripts] Politiemelding ontvangen; locatie: Main Street / Cross Street (Centrum)
+PASS: location text, G waypoint, expiry, latest alert, server-only event
+^5[Troy Scripts]^7 ts_bridge 0.0.2(BETA) gestart
+^5[TroyScripts]^7 ts_hostage 1.1.7 gestart
+[Troy Scripts] Politiemelding verstuurd naar 1 agent(en).
+[Troy Scripts] Politiemelding verstuurd naar 1 agent(en).
+PASS: server lifecycle, consent-state handshake, validation, replay and cleanup
+[TroyScripts] Testmelding naar politie; locatie van speler 1
+[Troy Scripts] Politiemelding verstuurd naar 1 agent(en).
+[TroyScripts] Testmelding naar politie; locatie van speler 1
+[TroyScripts] Testmelding naar politie; locatie van speler 1
+[Troy Scripts] Politiemelding verstuurd naar 1 agent(en).
+PASS: old config, console-only diagnostics, disabled alerts, job fallback, player isolation
+[TroyScripts] Testmelding naar politie; locatie van speler 1
+[Troy Scripts] Politiemelding verstuurd naar 0 agent(en).
+[Troy Scripts] Controleer ts_bridge_check en PoliceAlertConfig.Jobs.
+[TroyScripts] Testmelding naar politie; locatie van speler 1
+[Troy Scripts] Politiemelding verstuurd naar 0 agent(en).
+[Troy Scripts] Controleer ts_bridge_check en PoliceAlertConfig.Jobs.
+PASS: standalone, missing ESX, invalid coordinates
+^3[ts_bridge webhook] ts_hostage: screenshotresource niet gestart^7
+^3[ts_bridge webhook] ts_hostage: screenshot time-out^7
+^3[ts_bridge webhook] Ongeldige Discord-webhook voor ts_hostage^7
+PASS: two destinations, identities, weapon, JPEG multipart, fallback, timeout, duplicate callback, 429
+^3[ts_bridge webhook] ts_hostage: screenshotresource niet gestart^7
+^3[ts_bridge webhook] Wachtrij vol; log overgeslagen.^7
+^3[ts_bridge webhook] ts_hostage: ongeldig of te groot JPEG-antwoord^7
+PASS: central route override, queue capacity, invalid JPEG fallback
+
+ts_keycard 1.1.4 — 5 testscripts
+[Troy Scripts] ts_keycard: ts_bridge 0.0.2(BETA) gecontroleerd (API 1, server).
+^1[Troy Scripts] ts_keycard: ts_bridge is gestopt. Start eerst de bridge en daarna dit script opnieuw.^7
+^1[Troy Scripts] ts_keycard gestopt: ts_bridge-controle mislukt (ts_bridge 0.0.2(BETA) of nieuwer vereist (API 1)). Installeer de meegeleverde bridge en start die eerst.^7
+^1[Troy Scripts] ts_keycard gestopt: ts_bridge-controle mislukt (ongeldige API of verkeerde client/server-versie). Installeer de meegeleverde bridge en start die eerst.^7
+^1[Troy Scripts] ts_keycard gestopt: ts_bridge-controle mislukt (functie ontbreekt: GetPlayerData). Installeer de meegeleverde bridge en start die eerst.^7
+^1[Troy Scripts] ts_keycard gestopt: ts_bridge-controle mislukt (ontbreekt, niet gestart of GetStatus ontbreekt). Installeer de meegeleverde bridge en start die eerst.^7
+[Troy Scripts] ts_keycard: ts_bridge 0.0.2(BETA) gecontroleerd (API 1, client).
+^1[Troy Scripts] ts_keycard: ts_bridge is gestopt. Start eerst de bridge en daarna dit script opnieuw.^7
+^1[Troy Scripts] ts_keycard gestopt: ts_bridge-controle mislukt (ts_bridge 0.0.2(BETA) of nieuwer vereist (API 1)). Installeer de meegeleverde bridge en start die eerst.^7
+^1[Troy Scripts] ts_keycard gestopt: ts_bridge-controle mislukt (ongeldige API of verkeerde client/server-versie). Installeer de meegeleverde bridge en start die eerst.^7
+^1[Troy Scripts] ts_keycard gestopt: ts_bridge-controle mislukt (functie ontbreekt: Notify). Installeer de meegeleverde bridge en start die eerst.^7
+^1[Troy Scripts] ts_keycard gestopt: ts_bridge-controle mislukt (ontbreekt, niet gestart of GetStatus ontbreekt). Installeer de meegeleverde bridge en start die eerst.^7
+[Troy Scripts] ts_hostage: ts_bridge 0.0.2(BETA) gecontroleerd (API 1, server).
+^1[Troy Scripts] ts_hostage: ts_bridge is gestopt. Start eerst de bridge en daarna dit script opnieuw.^7
+^1[Troy Scripts] ts_hostage gestopt: ts_bridge-controle mislukt (ts_bridge 0.0.2(BETA) of nieuwer vereist (API 1)). Installeer de meegeleverde bridge en start die eerst.^7
+^1[Troy Scripts] ts_hostage gestopt: ts_bridge-controle mislukt (ongeldige API of verkeerde client/server-versie). Installeer de meegeleverde bridge en start die eerst.^7
+^1[Troy Scripts] ts_hostage gestopt: ts_bridge-controle mislukt (functie ontbreekt: AlertJobs). Installeer de meegeleverde bridge en start die eerst.^7
+^1[Troy Scripts] ts_hostage gestopt: ts_bridge-controle mislukt (ontbreekt, niet gestart of GetStatus ontbreekt). Installeer de meegeleverde bridge en start die eerst.^7
+[Troy Scripts] ts_hostage: ts_bridge 0.0.2(BETA) gecontroleerd (API 1, client).
+^1[Troy Scripts] ts_hostage: ts_bridge is gestopt. Start eerst de bridge en daarna dit script opnieuw.^7
+^1[Troy Scripts] ts_hostage gestopt: ts_bridge-controle mislukt (ts_bridge 0.0.2(BETA) of nieuwer vereist (API 1)). Installeer de meegeleverde bridge en start die eerst.^7
+^1[Troy Scripts] ts_hostage gestopt: ts_bridge-controle mislukt (ongeldige API of verkeerde client/server-versie). Installeer de meegeleverde bridge en start die eerst.^7
+^1[Troy Scripts] ts_hostage gestopt: ts_bridge-controle mislukt (functie ontbreekt: Notify). Installeer de meegeleverde bridge en start die eerst.^7
+^1[Troy Scripts] ts_hostage gestopt: ts_bridge-controle mislukt (ontbreekt, niet gestart of GetStatus ontbreekt). Installeer de meegeleverde bridge en start die eerst.^7
+PASS: both resources/client+server, compatible bridge, wrong API, missing feature, absent bridge, stop
+PASS: selected locale, Dutch key/language fallback and formatted messages
+[TroyScripts] ts_keycard 1.1.4 | Persoonlijke politiekaarten geladen
+[TroyScripts] Gratis vervangende kaart verleend door 2 aan 1 (one)
+PASS: keycard callback integration, jobs, grades, free replacement permissions, distance, update and stale card
+[Troy Scripts] ts_keycard betaling ts_keycard:1789629141:100:3 voor ID 1 mislukt: server/payment.lua:56: Kaart kon niet worden toegevoegd: inventory_full
+stack traceback:
+	[C]: in function 'error'
+	server/payment.lua:56: in function <server/payment.lua:39>
+	[C]: in function 'xpcall'
+	server/payment.lua:39: in function <server/payment.lua:8>
+	[C]: in function 'xpcall'
+	server/payment.lua:90: in function <server/payment.lua:86>
+	(...tail calls...)
+	tests/payment_spec.lua:39: in main chunk
+[Troy Scripts] ts_keycard betaling ts_keycard:1789629141:100:4 voor ID 1 mislukt: server/payment.lua:47: Society-bijschrijving: nil
+stack traceback:
+	[C]: in function 'error'
+	server/payment.lua:47: in function <server/payment.lua:39>
+	[C]: in function 'xpcall'
+	server/payment.lua:39: in function <server/payment.lua:8>
+	[C]: in function 'xpcall'
+	server/payment.lua:90: in function <server/payment.lua:86>
+	(...tail calls...)
+	tests/payment_spec.lua:40: in main chunk
+[Troy Scripts] ts_keycard betaling ts_keycard:1789629141:100:5 voor ID 1 mislukt: server/payment.lua:47: Society-bijschrijving: nil
+stack traceback:
+	[C]: in function 'error'
+	server/payment.lua:47: in function <server/payment.lua:39>
+	[C]: in function 'xpcall'
+	server/payment.lua:39: in function <server/payment.lua:8>
+	[C]: in function 'xpcall'
+	server/payment.lua:90: in function <server/payment.lua:86>
+	(...tail calls...)
+	tests/payment_spec.lua:41: in main chunk
+^1[Troy Scripts] HANDMATIGE CONTROLE NODIG: ts_keycard:1789629141:100:5. Controleer kaart, betaalaccount en society. Niet blind opnieuw uitgeven.^7
+PASS: cash/bank card purchase, capacity, rollback, uncertain mutation, free replacements, grade and funds
+[TroyScripts] Kaarten ingetrokken door 2 | generatie 1 | 1 direct verwijderd | 0 opruimfouten
+PASS: revocation permissions, payment lock, persistence, stale cards, cooldown and hook re-registration

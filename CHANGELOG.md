@@ -1,4 +1,16 @@
-# Changelog
+# Changelog — ts_keycard
+
+## 1.1.4 — ts_bridge-integratie en locales
+- Verplicht ts_bridge 0.0.2(BETA), met versie/API/functiecontrole op client en server.
+- ESX, rechten, inventory, hooks, target, meldingen en betalingen via de centrale bridge.
+- Cash als bestaande standaard; optionele bankbetaling via Config.PaymentAccount.
+- SocietyAccount verwijst naar de centrale addonaccount-alias.
+- Bevestigde betaalstappen voor kaartuitgifte; herstel van bekende fouten en melding bij onzeker resultaat.
+- Kaartvenster/NPC opruimen bij bridge-uitval; target- en inventoryhooks opnieuw registreren bij providerherstart.
+- Aanpasbare locales/nl.lua, NL-fallback en vertaalbare kaartvensterlabels.
+- Documentatie, manifest, opstartmelding en version.txt naar 1.1.4.
+- Geen factuur-/VLR-wijzigingen of GitHub-publicatie.
+
 
 ## 1.1.3 — GitHub-updatecontrole
 

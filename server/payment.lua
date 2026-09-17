@@ -1,107 +1,97 @@
-local inv = exports.ox_inventory
--- Defaults also support keeping a previously customised 1.1.0 config.
-Config.CardPrice = Config.CardPrice or 10
-Config.FreeCardMinimumGrade = Config.FreeCardMinimumGrade or 7
-Config.FreeIssueMinimumGrade = Config.FreeIssueMinimumGrade or 7
-Config.SocietyAccounts = Config.SocietyAccounts or { 'socity_police', 'society_police' }
-KeycardPayment = {}
-
+if not TSBridgeGuard.Await() then return end
+local bridge = exports.ts_bridge
+KeycardPayment = { busy = false }
+local serial = 0
 local function failure(message) return { ok = false, message = message } end
-local function callable(value)
-    if type(value) == 'function' then return true end
-    if type(value) ~= 'table' then return false end
-    local mt = getmetatable(value)
-    return type(mt) == 'table' and mt.__call ~= nil
-end
-local function fetchAccount(name)
-    local account
-    TriggerEvent('esx_addonaccount:getSharedAccount', name, function(value) account = value end)
-    return account
-end
-local function balance(account, name)
-    local money = type(account) == 'table' and tonumber(account.money)
-    if not money or money ~= money or math.abs(money) == math.huge then
-        error(('Society %s heeft geen numeriek saldo (account=%s, money=%s)'):format(name, type(account), type(type(account) == 'table' and account.money or nil)))
+local function confirmed(result) return type(result) == 'table' and result.ok == true end
+local function uncertain(result) return type(result) ~= 'table' or result.uncertain == true end
+local function issue(owner, target, metadata, freeReplacement)
+    local price = Config.CardPrice or 10
+    if type(price) ~= 'number' or price < 0 or price % 1 ~= 0 or price == math.huge then
+        return failure(TSL('payment_ongeldige_kaartprijs_controleer_config_lua'))
     end
-    return money
-end
-local function societyAccount()
-    if GetResourceState('esx_addonaccount') ~= 'started' then return nil end
-    for _, name in ipairs(Config.SocietyAccounts) do
-        local account = fetchAccount(name)
-        if account then
-            balance(account, name)
-            if not callable(account.addMoney) or not callable(account.removeMoney) then
-                error(('Society %s heeft niet-aanroepbare betaalmethoden (addMoney=%s, removeMoney=%s)'):format(name, type(account.addMoney), type(account.removeMoney)))
-            end
-            -- Cross-resource account data is a snapshot. Request a fresh snapshot for
-            -- each balance check; the referenced methods mutate the source resource.
-            return {
-                getBalance = function() return balance(fetchAccount(name), name) end,
-                addMoney = function(amount) account.addMoney(amount) end,
-                removeMoney = function(amount) account.removeMoney(amount) end
-            }
-        end
+    local account = Config.PaymentAccount or 'cash'
+    if account ~= 'cash' and account ~= 'bank' then return failure(TSL('payment_paymentaccount_moet_cash_of_bank_zijn')) end
+    if not owner or not owner.job or not owner.identifier then return failure(TSL('payment_de_ontvanger_is_niet_beschikbaar')) end
+    if (tonumber(owner.job.grade) or -1) >= (Config.FreeCardMinimumGrade or 7) or freeReplacement then price = 0 end
+    local function samePlayer()
+        local current = bridge:GetPlayerData(target)
+        return current and current.identifier == owner.identifier
     end
-end
-
-function KeycardPayment.issue(owner, target, metadata, freeReplacement)
-    local price = Config.CardPrice
-    if type(price) ~= 'number' or price < 0 or price % 1 ~= 0 then return failure('Ongeldige kaartprijs. Controleer config.lua.') end
-    local job = owner.getJob()
-    if (tonumber(job.grade) or -1) >= Config.FreeCardMinimumGrade then price = 0 end
-    if freeReplacement then price = 0 end
-    local account, beforeCash, beforeSociety
+    if not samePlayer() then return failure(TSL('payment_de_ontvanger_is_niet_meer_online')) end
+    local societyKey = Config.SocietyAccount or 'police'
     if price > 0 then
-        account = societyAccount()
-        if not account then return failure('De politie-societyrekening is niet beschikbaar. Er is niets betaald.') end
-        beforeCash = owner.getMoney()
-        if type(beforeCash) ~= 'number' or beforeCash < price then
-            return failure(('De ontvanger heeft €%s contant nodig voor een nieuwe kaart.'):format(price))
-        end
-        beforeSociety = account.getBalance()
+        local balance, resolved = bridge:GetSocietyBalance(societyKey)
+        if balance == nil then return failure(TSL('payment_de_societyrekening_is_niet_beschikbaar_er_is')) end
+        -- Pin de opgeloste rekening: bijschrijving en eventuele terugboeking gaan naar dezelfde rekening.
+        societyKey = resolved
+        local funds = bridge:GetMoney(target, account)
+        if funds == nil then return failure(TSL('payment_het_betaalaccount_is_niet_beschikbaar_controleer_de')) end
+        if funds < price then return failure((TSL('payment_de_ontvanger_heeft_nodig')):format(price, account == 'bank' and TSL('payment_op_de_bank') or TSL('payment_cash'))) end
     end
-    local slot = inv:GetEmptySlot(target)
-    if not slot or not inv:CanCarryItem(target, Config.Item, 1, metadata) then
-        return failure('De ontvanger heeft geen ruimte voor de kaart. Er is niets betaald.')
+    if not bridge:CanCarryItem(target, Config.Item, 1, metadata) then
+        return failure(TSL('payment_geen_ruimte_voor_de_kaart_of_inventory'))
     end
-
-    local cardAdded = false
+    serial = serial + 1
+    local reference = ('ts_keycard:%s:%s:%s'):format(os.time(), GetGameTimer(), serial)
+    metadata.tsKeycardTransaction = reference
+    local debit, credit, debitAttempted, creditAttempted, itemAttempted, itemUncertain
     local ok, err = xpcall(function()
-        local added, reason = inv:AddItem(target, Config.Item, 1, metadata, slot)
-        if not added then error('Inventory: ' .. tostring(reason)) end
-        cardAdded = true
         if price > 0 then
-            owner.removeMoney(price, 'Politie sleutelkaart')
-            if owner.getMoney() ~= beforeCash - price then error('Contante afschrijving niet bevestigd') end
-            account.addMoney(price)
-            if account.getBalance() ~= beforeSociety + price then error('Society-bijschrijving niet bevestigd') end
+            if not samePlayer() then error(TSL('payment_ontvanger_niet_meer_online')) end
+            debitAttempted = true
+            debit = bridge:RemoveMoney(target, account, price, TSL('payment_politie_sleutelkaart') .. reference)
+            if not confirmed(debit) then error(TSL('payment_afschrijving') .. tostring(type(debit) == 'table' and debit.code)) end
+            creditAttempted = true
+            credit = bridge:AddSocietyMoney(societyKey, price)
+            if not confirmed(credit) then error(TSL('payment_society_bijschrijving') .. tostring(type(credit) == 'table' and credit.code)) end
         end
+        if not samePlayer() then error(TSL('payment_ontvanger_niet_meer_online_voor_kaartuitgifte')) end
+        -- Na de betaling opnieuw ruimte controleren; providers kunnen tussentijds yielden.
+        if not bridge:CanCarryItem(target, Config.Item, 1, metadata) then error(TSL('payment_inventory_inmiddels_vol')) end
+        itemAttempted = true
+        local added, reason = bridge:AddItem(target, Config.Item, 1, metadata)
+        if not added then
+            itemUncertain = reason == 'inventory_call_failed'
+            error(TSL('payment_kaart_kon_niet_worden_toegevoegd') .. tostring(reason))
+        end
+        itemAttempted = false -- geslaagde uitgifte, geen verdere mutaties hierna
     end, debug.traceback)
     if not ok then
-        local rollbackOk, rollbackErr = pcall(function()
-            if cardAdded then
-                assert(inv:RemoveItem(target, Config.Item, 1, nil, slot), 'Kaart kon niet worden teruggenomen')
-            end
-            if price > 0 then
-                local credited = account.getBalance() - beforeSociety
-                if credited == price then account.removeMoney(price)
-                elseif credited ~= 0 then error('Onverwacht society-saldo; handmatige controle vereist') end
-                assert(account.getBalance() == beforeSociety, 'Society-terugboeking mislukt')
-                local deducted = beforeCash - owner.getMoney()
-                if deducted == price then owner.addMoney(price, 'Terugbetaling politie sleutelkaart')
-                elseif deducted ~= 0 then error('Onverwacht contant saldo; handmatige controle vereist') end
-                assert(owner.getMoney() == beforeCash, 'Terugbetaling mislukt')
-            end
-        end)
-        print(('[TroyScripts] Kaartbetaling voor speler %s mislukt: %s'):format(target, tostring(err)))
-        if not rollbackOk then
-            print('[TroyScripts] HANDMATIGE CONTROLE NODIG: ' .. tostring(rollbackErr))
-            return failure('Kaartbetaling mislukt en niet volledig teruggedraaid. Neem contact op met de beheerder.')
+        print((TSL('payment_troy_scripts_ts_keycard_betaling_voor_id_mislukt')):format(reference, target, tostring(err)))
+        local ambiguous = (debitAttempted and uncertain(debit)) or (creditAttempted and uncertain(credit))
+            or itemUncertain or (itemAttempted and itemUncertain == nil)
+        if not ambiguous then
+            local rollbackOk, rollbackResult = pcall(function()
+                if confirmed(credit) then
+                    local reversed = bridge:RemoveSocietyMoney(societyKey, price)
+                    if not confirmed(reversed) then return false end
+                end
+                if confirmed(debit) then
+                    if not samePlayer() then return false end
+                    local refunded = bridge:AddMoney(target, account, price, TSL('payment_terugbetaling_politie_sleutelkaart') .. reference)
+                    if not confirmed(refunded) then return false end
+                end
+                return true
+            end)
+            if rollbackOk and rollbackResult then return failure(TSL('payment_kaartuitgifte_mislukt_er_is_geen_geld_ingehouden')) end
         end
-        return failure('Kaartuitgifte mislukt. Er is geen geld ingehouden.')
+        print(TSL('payment_troy_scripts_handmatige_controle_nodig') .. reference .. TSL('payment_controleer_kaart_betaalaccount_en_society_niet_blind'))
+        return failure(TSL('payment_uitgifte_niet_afgerond_de_betaalstatus_moet_worden') .. reference)
     end
     return { ok = true, message = price > 0
-        and ('Kaart gemaakt voor %s. €%s contant betaald aan de politie-societyrekening.'):format(metadata.ownerName, price)
-        or ('Kaart gratis gemaakt voor %s.'):format(metadata.ownerName) }
+        and (TSL('payment_kaart_gemaakt_voor_betaald_aan_de_society')):format(metadata.ownerName, price, account == 'bank' and TSL('payment_via_de_bank') or TSL('payment_cash'))
+        or (TSL('payment_kaart_gratis_gemaakt_voor')):format(metadata.ownerName) }
+end
+function KeycardPayment.issue(...)
+    if not TSBridgeGuard.IsReady() then return failure(TSL('main_de_bridge_is_niet_beschikbaar')) end
+    if KeycardPayment.busy then return failure(TSL('payment_er_wordt_al_een_kaart_betaald_probeer')) end
+    KeycardPayment.busy = true
+    local ok, result = xpcall(issue, debug.traceback, ...)
+    KeycardPayment.busy = false
+    if not ok then
+        print(TSL('payment_troy_scripts_ts_keycard_betaalcontrole_mislukt') .. tostring(result))
+        return failure(TSL('payment_betaalcontrole_mislukt_bekijk_de_serverconsole'))
+    end
+    return result
 end

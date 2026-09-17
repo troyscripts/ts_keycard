@@ -1,5 +1,6 @@
-local ESX = exports.es_extended:getSharedObject()
-local inv = exports.ox_inventory
+if not TSBridgeGuard.Await() then return end
+local bridge = exports.ts_bridge
+local inv = exports.ts_bridge
 local function normalizePoint(p)
     if type(p) ~= 'table' or not p.coords then return false end
     local kind = type(p.coords)
@@ -29,16 +30,14 @@ if not validPoint(point) then point = false end
 
 local function jobAllowed(player, minimum)
     if not player then return false end
-    local job = player.getJob()
+    local job = player.job
     return job and Config.Jobs[job.name] == true and (tonumber(job.grade) or -1) >= minimum
 end
 local function canSetup(src)
-    if IsPlayerAceAllowed(src, Config.SetupAce) then return true end
-    local player = ESX.GetPlayerFromId(src)
-    if not player then return false end
-    local groups = Config.AdminGroups or { owner = true, admin = true }
-    if type(player.getGroup) == 'function' and groups[player.getGroup()] == true then return true end
-    return jobAllowed(player, Config.SetupMinimumGrade or 7)
+    return TSBridgeGuard.IsReady() and bridge:HasPermission(src, {
+        ace = Config.SetupAce, groups = Config.AdminGroups or {owner=true,admin=true},
+        jobs = Config.Jobs, minimumGrade = Config.SetupMinimumGrade or 7
+    })
 end
 local function coordsOf(src)
     local ped = GetPlayerPed(src)
@@ -54,83 +53,89 @@ local function failure(message) return { ok = false, message = message } end
 lib.callback.register('ts_keycard:getPoint', function() return point end)
 lib.callback.register('ts_keycard:canSetup', function(src) return canSetup(src) end)
 lib.callback.register('ts_keycard:setPoint', function(src, station)
-    if not canSetup(src) then return failure('Je mag het uitgiftepunt niet instellen.') end
-    if type(station) ~= 'string' then return failure('Vul een stationsnaam in.') end
+    if not canSetup(src) then return failure(TSL('main_je_mag_het_uitgiftepunt_niet_instellen')) end
+    if type(station) ~= 'string' then return failure(TSL('main_vul_een_stationsnaam_in')) end
     station = station:gsub('%c', ''):match('^%s*(.-)%s*$')
-    if #station < 1 or #station > 64 then return failure('Gebruik een stationsnaam van maximaal 64 bytes.') end
+    if #station < 1 or #station > 64 then return failure(TSL('main_gebruik_een_stationsnaam_van_maximaal_bytes')) end
     local c = coordsOf(src)
-    if not c then return failure('Je positie is niet beschikbaar.') end
+    if not c then return failure(TSL('main_je_positie_is_niet_beschikbaar')) end
     point = { station = station, coords = { x = c.x, y = c.y, z = c.z, w = GetEntityHeading(GetPlayerPed(src)) } }
     SetResourceKvp('issuance_point_v1', json.encode(point))
     TriggerClientEvent('ts_keycard:pointChanged', -1, point)
-    print(('[TroyScripts] Uitgiftepunt ingesteld door speler %s: %s'):format(src, station))
-    return { ok = true, message = 'Uitgiftepunt opgeslagen: ' .. station }
+    print((TSL('main_troyscripts_uitgiftepunt_ingesteld_door_speler')):format(src, station))
+    return { ok = true, message = TSL('main_uitgiftepunt_opgeslagen') .. station }
 end)
 
 lib.callback.register('ts_keycard:canIssueFree', function(src)
-    return jobAllowed(ESX.GetPlayerFromId(src), Config.FreeIssueMinimumGrade or 7)
+    if not TSBridgeGuard.IsReady() then return false end
+    return jobAllowed(bridge:GetPlayerData(src), Config.FreeIssueMinimumGrade or 7)
 end)
 lib.callback.register('ts_keycard:issue', function(src, target, freeReplacement)
-    if KeycardRevocation.busy then return failure('De kaarten worden ingetrokken. Probeer het zo opnieuw.') end
+    if not TSBridgeGuard.IsReady() then return failure(TSL('main_de_bridge_is_niet_beschikbaar')) end
+    if KeycardRevocation.busy then return failure(TSL('main_de_kaarten_worden_ingetrokken_probeer_het_zo')) end
     target = tonumber(target)
-    if not target or target < 1 or target % 1 ~= 0 then return failure('Ongeldig speler-ID.') end
-    if busy[target] or (cooldown[src] or 0) > os.time() then return failure('Wacht even voordat je opnieuw een kaart maakt.') end
+    if not target or target < 1 or target % 1 ~= 0 then return failure(TSL('main_ongeldig_speler_id')) end
+    if busy[target] or (cooldown[src] or 0) > os.time() then return failure(TSL('main_wacht_even_voordat_je_opnieuw_een_kaart')) end
     cooldown[src] = os.time() + Config.CooldownSeconds
-    local issuer, owner = ESX.GetPlayerFromId(src), ESX.GetPlayerFromId(target)
+    local issuer, owner = bridge:GetPlayerData(src), bridge:GetPlayerData(target)
     local minimum = src == target and Config.IssueMinimumGrade or Config.IssueOthersMinimumGrade
-    if not jobAllowed(issuer, minimum) then return failure('Je hebt niet de vereiste politierang voor deze uitgifte.') end
-    if freeReplacement ~= nil and type(freeReplacement) ~= 'boolean' then return failure('Ongeldige uitgiftekeuze.') end
+    if not jobAllowed(issuer, minimum) then return failure(TSL('main_je_hebt_niet_de_vereiste_politierang_voor')) end
+    if freeReplacement ~= nil and type(freeReplacement) ~= 'boolean' then return failure(TSL('main_ongeldige_uitgiftekeuze')) end
     if freeReplacement and not jobAllowed(issuer, Config.FreeIssueMinimumGrade or 7) then
-        return failure('Alleen corpsleiding mag een gratis vervangende kaart verlenen.')
+        return failure(TSL('main_alleen_corpsleiding_mag_een_gratis_vervangende_kaart'))
     end
-    if not owner or not jobAllowed(owner, 0) then return failure('De ontvanger moet online zijn en een toegestane politiebaan hebben.') end
+    if not owner or not jobAllowed(owner, 0) then return failure(TSL('main_de_ontvanger_moet_online_zijn_en_een')) end
     if not nearPoint(src) or GetPlayerRoutingBucket(src) ~= GetPlayerRoutingBucket(target) then
-        return failure('Je moet bij het uitgiftepunt in het HB staan.')
+        return failure(TSL('main_je_moet_bij_het_uitgiftepunt_in_het'))
     end
     local a, b = coordsOf(src), coordsOf(target)
-    if not a or not b or #(a - b) > Config.TargetDistance then return failure('De ontvanger staat te ver weg.') end
+    if not a or not b or #(a - b) > Config.TargetDistance then return failure(TSL('main_de_ontvanger_staat_te_ver_weg')) end
     busy[target] = true
     local ok, result = xpcall(function()
-        local job, identifier = owner.getJob(), owner.getIdentifier()
-        local name = owner.getName()
-        if type(name) ~= 'string' or name == '' or not identifier then return failure('De RP-gegevens van de ontvanger ontbreken.') end
+        local job, identifier = owner.job, owner.identifier
+        local name = owner.name
+        if type(name) ~= 'string' or name == '' or not identifier then return failure(TSL('main_de_rp_gegevens_van_de_ontvanger_ontbreken')) end
         local metadata = {
             keycardGeneration = KeycardRevocation.generation,
             owner = identifier, ownerName = name, rank = job.grade_label or job.label or job.name,
             job = job.name, grade = tonumber(job.grade) or 0, station = point.station,
             issuedAt = os.date('!%Y-%m-%d %H:%M UTC'),
-            description = ('Naam: %s\nRang: %s\nStation: %s'):format(name, job.grade_label or job.name, point.station)
+            description = (TSL('main_naam_rang_station')):format(name, job.grade_label or job.name, point.station)
         }
-        local slots = inv:Search(target, 'slots', Config.Item) or {}
+        local slots, inventoryError = inv:GetItemSlots(target, Config.Item)
+        if inventoryError then return failure(TSL('main_inventory_kon_niet_worden_gelezen')) end
+        slots = slots or {}
         for _, item in pairs(slots) do
             if item.metadata and item.metadata.owner == identifier and not KeycardRevocation.isStale(item) then
-                inv:SetMetadata(target, item.slot, metadata)
-                return { ok = true, message = 'Kaart bijgewerkt voor ' .. name .. '.' }
+                local changed = inv:SetItemMetadata(target, item.slot, metadata)
+                if not changed then return failure(TSL('main_de_kaart_kon_niet_worden_bijgewerkt')) end
+                return { ok = true, message = TSL('main_kaart_bijgewerkt_voor') .. name .. '.' }
             end
         end
         KeycardRevocation.clean(target)
         if freeReplacement then
-            metadata.issuanceReason = 'Gratis vervanging na inname of intrekking'
-            metadata.issuedBy = issuer.getIdentifier()
+            metadata.issuanceReason = TSL('main_gratis_vervanging_na_inname_of_intrekking')
+            metadata.issuedBy = issuer.identifier
         end
         local paymentResult = KeycardPayment.issue(owner, target, metadata, freeReplacement)
         if paymentResult.ok and freeReplacement then
-            print(('[TroyScripts] Gratis vervangende kaart verleend door %s aan %s (%s)'):format(src, target, identifier))
+            print((TSL('main_troyscripts_gratis_vervangende_kaart_verleend_door_aan')):format(src, target, identifier))
         end
         return paymentResult
     end, debug.traceback)
     busy[target] = nil
-    if not ok then print('[TroyScripts] ' .. tostring(result)); return failure('Kaartuitgifte mislukt. Bekijk de serverconsole.') end
+    if not ok then print(TSL('main_troyscripts') .. tostring(result)); return failure(TSL('main_kaartuitgifte_mislukt_bekijk_de_serverconsole')) end
     if result.ok and target ~= src then
-        TriggerClientEvent('ox_lib:notify', target, { title = 'Politiekaart', description = result.message, type = 'success' })
+        bridge:Notify(target, { title = TSL('main_politiekaart'), description = result.message, type = 'success' })
     end
     return result
 end)
 
 -- Lees uitsluitend de kaart uit de inventaris van de aanvrager, geen clientmetadata.
 lib.callback.register('ts_keycard:read', function(src, slot)
+    if not TSBridgeGuard.IsReady() then return false end
     if type(slot) ~= 'number' or slot < 1 or slot % 1 ~= 0 then return false end
-    local item = inv:GetSlot(src, slot)
+    local item = inv:GetInventorySlot(src, slot)
     if not item or item.name ~= Config.Item or type(item.metadata) ~= 'table' then return false end
     local m = item.metadata
     if KeycardRevocation.isStale(item) then
@@ -141,5 +146,5 @@ lib.callback.register('ts_keycard:read', function(src, slot)
     return { name = m.ownerName, rank = m.rank, station = m.station }
 end)
 AddEventHandler('playerDropped', function() cooldown[source] = nil end)
-print('[TroyScripts] ts_keycard 1.1.3 | Persoonlijke politiekaarten geladen')
-if not point then print('[TroyScripts] Stel het uitgiftepunt in het HB in met /' .. Config.SetupCommand) end
+print(TSL('main_troyscripts_ts_keycard_persoonlijke_politiekaarten_geladen'))
+if not point then print(TSL('main_troyscripts_stel_het_uitgiftepunt_in_het_hb') .. Config.SetupCommand) end

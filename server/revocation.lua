@@ -1,5 +1,6 @@
-local ESX = exports.es_extended:getSharedObject()
-local inv = exports.ox_inventory
+if not TSBridgeGuard.Await() then return end
+local bridge = exports.ts_bridge
+local inv = exports.ts_bridge
 local storageKey = 'revocation_generation_v1'
 local generation = tonumber(GetResourceKvpString(storageKey)) or 0
 KeycardRevocation = { generation = generation, busy = false }
@@ -20,7 +21,9 @@ end
 function R.clean(id)
     local removed, failed = 0, 0
     -- Search produces a separate slot list; remove via the inventory API, not table edits.
-    for _, item in pairs(inv:Search(id, 'slots', Config.Item) or {}) do
+    local items, err = inv:GetItemSlots(id, Config.Item)
+    if err then error(TSL('revocation_inventory_niet_beschikbaar') .. tostring(err)) end
+    for _, item in pairs(items or {}) do
         if R.isStale(item) then
             local ok = inv:RemoveItem(id, Config.Item, item.count, nil, item.slot)
             if ok then removed = removed + item.count else failed = failed + 1 end
@@ -31,7 +34,9 @@ function R.clean(id)
 end
 
 local function hasStale(id)
-    for _, item in pairs(inv:Search(id, 'slots', Config.Item) or {}) do
+    local items, err = inv:GetItemSlots(id, Config.Item)
+    if err then error(TSL('revocation_inventory_niet_beschikbaar') .. tostring(err)) end
+    for _, item in pairs(items or {}) do
         if R.isStale(item) then return true end
     end
     return false
@@ -44,8 +49,9 @@ local function queue(id)
     -- Defer changes until the inventory hook and its action have returned.
     SetTimeout(0, function()
         queued[id] = nil
+        if not TSBridgeGuard.IsReady() then return end
         local ok, err = pcall(R.clean, id)
-        if not ok then print('[TroyScripts] Kaartopruiming mislukt: ' .. tostring(err)) end
+        if not ok then print(TSL('revocation_troyscripts_kaartopruiming_mislukt') .. tostring(err)) end
     end)
 end
 
@@ -71,68 +77,83 @@ local function sweep(includeStorage)
 end
 
 local function authorized(src)
-    if IsPlayerAceAllowed(src, Config.RevokeAce) then return true end
-    local player = ESX.GetPlayerFromId(src)
-    if not player then return false end
-    local groups = Config.AdminGroups or { owner = true, admin = true }
-    if type(player.getGroup) == 'function' and groups[player.getGroup()] == true then return true end
-    local job = player.getJob()
-    return job and Config.Jobs[job.name] == true and (tonumber(job.grade) or -1) >= Config.RevokeMinimumGrade
+    return TSBridgeGuard.IsReady() and bridge:HasPermission(src, {
+        ace = Config.RevokeAce, groups = Config.AdminGroups or {owner=true,admin=true},
+        jobs = Config.Jobs, minimumGrade = Config.RevokeMinimumGrade or 7
+    })
 end
 
 lib.callback.register('ts_keycard:canRevoke', authorized)
 lib.callback.register('ts_keycard:revokeAll', function(src)
-    if not authorized(src) then return { ok = false, message = 'Je mag geen sleutelkaarten intrekken.' } end
-    if R.busy or os.time() - lastRevoke < Config.RevokeCooldownSeconds then
-        return { ok = false, message = 'Er is zojuist al een intrekking uitgevoerd. Wacht even.' }
+    if not authorized(src) then return { ok = false, message = TSL('revocation_je_mag_geen_sleutelkaarten_intrekken') } end
+    if (KeycardPayment and KeycardPayment.busy) or R.busy or os.time() - lastRevoke < Config.RevokeCooldownSeconds then
+        return { ok = false, message = TSL('revocation_er_is_zojuist_al_een_intrekking_uitgevoerd') }
     end
     R.busy = true
     local ok, result = xpcall(function()
         local nextGeneration = R.generation + 1
         SetResourceKvp(storageKey, tostring(nextGeneration))
         if tonumber(GetResourceKvpString(storageKey)) ~= nextGeneration then
-            return { ok = false, message = 'Intrekking niet opgeslagen. Er zijn geen kaarten ingetrokken.' }
+            return { ok = false, message = TSL('revocation_intrekking_niet_opgeslagen_er_zijn_geen_kaarten') }
         end
         R.generation = nextGeneration
         lastRevoke = os.time()
         local removed, failed = sweep(true)
         for _, playerId in ipairs(GetPlayers()) do
             local id = tonumber(playerId)
-            local player = ESX.GetPlayerFromId(id)
-            local job = player and player.getJob()
+            local player = bridge:GetPlayerData(id)
+            local job = player and player.job
             if job and Config.Jobs[job.name] then announce(id) end
         end
-        print(('[TroyScripts] Kaarten ingetrokken door %s | generatie %s | %s direct verwijderd | %s opruimfouten'):format(src, R.generation, removed, failed))
+        print((TSL('revocation_troyscripts_kaarten_ingetrokken_door_generatie_direct_verwijderd')):format(src, R.generation, removed, failed))
         if failed > 0 then
-            return { ok = false, message = ('Intrekking opgeslagen; %s kaarten verwijderd. %s inventarissen/slots konden nog niet worden opgeruimd. Controleer de serverconsole en deurtoegang.'):format(removed, failed) }
+            return { ok = false, message = (TSL('revocation_intrekking_opgeslagen_kaarten_verwijderd_inventarissen_slots_konden')):format(removed, failed) }
         end
-        return { ok = true, message = ('Alle bestaande kaarten zijn ingetrokken. %s kaarten direct verwijderd; offline inventarissen en overige opslag worden bij laden opgeruimd.'):format(removed) }
+        return { ok = true, message = (TSL('revocation_alle_bestaande_kaarten_zijn_ingetrokken_kaarten_direct')):format(removed) }
     end, debug.traceback)
     R.busy = false
     if not ok then
-        print('[TroyScripts] Intrekking: ' .. tostring(result))
-        return { ok = false, message = 'Intrekking niet volledig uitgevoerd. Controleer de serverconsole; voer geen nieuwe uitgifte uit voordat de fout is opgelost.' }
+        print(TSL('revocation_troyscripts_intrekking') .. tostring(result))
+        return { ok = false, message = TSL('revocation_intrekking_niet_volledig_uitgevoerd_controleer_de_serverconsole') }
     end
     return result
 end)
 
-inv:registerHook('swapItems', function(payload)
+local hookTokens = {}
+local function registerHooks()
+    if not TSBridgeGuard.IsReady() then return end
+    for _, token in ipairs(hookTokens) do inv:RemoveInventoryHook(token) end
+    hookTokens = {}
+    local function register(...)
+        local token = inv:RegisterInventoryHook(...)
+        if not token then
+            print(TSL('revocation_troy_scripts_ts_keycard_inventoryhook_ontbreekt_script_wordt'))
+            SetTimeout(0, function() StopResource(GetCurrentResourceName()) end)
+            return
+        end
+        hookTokens[#hookTokens+1] = token
+    end
+register('swapItems', function(payload)
     if R.isStale(payload.fromSlot) or R.isStale(payload.toSlot) then
         queue(payload.fromInventory)
         queue(payload.toInventory)
         return false
     end
 end)
-inv:registerHook('openInventory', function(payload)
+register('openInventory', function(payload)
     if hasStale(payload.inventoryId) or hasStale(payload.source) then
         queue(payload.inventoryId)
         queue(payload.source)
         return false
     end
 end)
-inv:registerHook('createItem', function(payload)
+register('createItem', function(payload)
     if (tonumber((payload.metadata or {}).keycardGeneration) or 0) ~= R.generation then queue(payload.inventoryId) end
 end, { itemFilter = { [Config.Item] = true } })
+
+end
+registerHooks()
+AddEventHandler('ts_bridge:inventoryReady', registerHooks)
 
 AddEventHandler('esx:playerLoaded', function(playerId) queue(tonumber(playerId)) end)
 AddEventHandler('playerDropped', function() notified[source] = nil end)
@@ -140,7 +161,7 @@ CreateThread(function()
     local tick = 0
     while true do
         -- Covers asynchronous inventory loading after ESX playerLoaded and external AddItem calls.
-        sweep(tick % 30 == 0)
+        if TSBridgeGuard.IsReady() then sweep(tick % 30 == 0) end
         tick = tick + 1
         Wait(1000)
     end

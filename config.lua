@@ -1,4 +1,6 @@
+-- Vereist ts_bridge 0.0.2(BETA), vóór dit script starten. Teksten: locales/nl.lua.
 Config = {}
+Config.Locale = 'nl' -- Hoofdtaal; teksten staan in locales/nl.lua
 Config.Item = 'politie_sleutelkaart'
 Config.Jobs = { police = true } -- Voeg bijvoorbeeld sheriff = true toe.
 Config.IssueMinimumGrade = 0 -- Eigen kaart maken of bijwerken.
@@ -13,8 +15,9 @@ Config.CooldownSeconds = 5
 Config.CardPrice = 10 -- Contant betaald door de ontvanger, alleen bij een nieuwe kaart.
 Config.FreeCardMinimumGrade = 7 -- Corpsleiding krijgt nieuwe kaarten gratis.
 Config.FreeIssueMinimumGrade = 7 -- Corpsleiding mag gratis vervangende kaarten verlenen.
--- Eerst de door jou opgegeven rekeningnaam, daarna de standaard ESX-spelling.
-Config.SocietyAccounts = { 'socity_police', 'society_police' }
+-- Societybeheer staat centraal in ts_bridge.
+Config.SocietyAccount = 'police' -- Alias uit ts_bridge/server_config.lua
+Config.PaymentAccount = 'cash' -- 'cash' of 'bank'; bank gebruikt de gekozen bridgeprovider
 Config.Ped = {
     model = 's_m_y_cop_01',
     scenario = 'WORLD_HUMAN_CLIPBOARD',
@@ -26,8 +29,8 @@ Config.RevokeAce = 'ts_keycard.revoke'
 Config.RevokeMinimumGrade = 7
 Config.RevokeCooldownSeconds = 30
 Config.RevokeNotification = {
-    title = 'Politie • Sleutelkaarten ingetrokken',
-    description = 'Alle eerder uitgegeven politiesleutelkaarten zijn ingetrokken. Meld je bij het hoofdbureau om een nieuwe kaart op te halen.',
+    title = TSL('config_politie_sleutelkaarten_ingetrokken'),
+    description = TSL('config_alle_eerder_uitgegeven_politiesleutelkaarten_zijn_ingetrokken_meld'),
     duration = 12000,
     position = 'top',
     icon = 'shield-halved',
@@ -36,7 +39,7 @@ Config.RevokeNotification = {
 }
 -- Een eerder met /kaartpunt opgeslagen locatie heeft voorrang.
 Config.IssuancePoint = {
-    station = 'Politie Gemert',
+    station = TSL('config_politie_gemert'),
     coords = vector4(445.4518, -994.7004, 30.7107, 180.0)
 }
 
