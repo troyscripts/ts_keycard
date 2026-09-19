@@ -1,5 +1,7 @@
--- Vereist ts_bridge 0.0.2(BETA), vóór dit script starten. Teksten: locales/nl.lua.
+-- Vereist ts_bridge 0.0.4, vóór dit script starten. Teksten: locales/nl.lua.
 Config = {}
+Config.Version = '1.1.5' -- configschema; pas aan na overnemen van de nieuwe velden
+Config.NotificationCooldownMs = 5000 -- gewone meldingen; intrekkingswaarschuwing blijft apart
 Config.Locale = 'nl' -- Hoofdtaal; teksten staan in locales/nl.lua
 Config.Item = 'politie_sleutelkaart'
 Config.Jobs = { police = true } -- Voeg bijvoorbeeld sheriff = true toe.
@@ -46,6 +48,6 @@ Config.IssuancePoint = {
 -- Eenmalige GitHub-updatecontrole bij het starten; installeert niets automatisch.
 Config.UpdateCheck = {
     Enabled = true,
-    Repository = 'troyenrobin-source/ts_keycard',
-    Branch = 'main'
+    Repository = 'troyscripts/ts_keycard',
+    Branch = 'main' -- version.txt in deze branch
 }

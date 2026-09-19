@@ -1,6 +1,7 @@
 -- Hoofdlocale. Pas alleen de teksten aan; behoud placeholders (%s, %d, %.1f) en sleutels.
 Locales = Locales or {}
 Locales['nl'] = {
+    ['config_invalid_notification_cooldown'] = '^3[ts_keycard] Ongeldige NotificationCooldownMs; standaard 5000 ms gebruikt.^7',
     ['bridge_check_troy_scripts_gestopt_ts_bridge_controle_mislukt_installeer'] = '^1[Troy Scripts] %s gestopt: ts_bridge-controle mislukt (%s). Installeer de meegeleverde bridge en start die eerst.^7',
     ['bridge_check_ontbreekt_niet_gestart_of_getstatus_ontbreekt'] = 'ontbreekt, niet gestart of GetStatus ontbreekt',
     ['bridge_check_ongeldige_api_of_verkeerde_client_server_versie'] = 'ongeldige API of verkeerde client/server-versie',
@@ -68,7 +69,7 @@ Locales['nl'] = {
     ['main_troyscripts_gratis_vervangende_kaart_verleend_door_aan'] = '[TroyScripts] Gratis vervangende kaart verleend door %s aan %s (%s)',
     ['main_troyscripts'] = '[TroyScripts] ',
     ['main_kaartuitgifte_mislukt_bekijk_de_serverconsole'] = 'Kaartuitgifte mislukt. Bekijk de serverconsole.',
-    ['main_troyscripts_ts_keycard_persoonlijke_politiekaarten_geladen'] = '[TroyScripts] ts_keycard 1.1.4 | Persoonlijke politiekaarten geladen',
+    ['main_troyscripts_ts_keycard_persoonlijke_politiekaarten_geladen'] = '[TroyScripts] ts_keycard 1.1.5 | Persoonlijke politiekaarten geladen',
     ['main_troyscripts_stel_het_uitgiftepunt_in_het_hb'] = '[TroyScripts] Stel het uitgiftepunt in het HB in met /',
     ['payment_ongeldige_kaartprijs_controleer_config_lua'] = 'Ongeldige kaartprijs. Controleer config.lua.',
     ['payment_paymentaccount_moet_cash_of_bank_zijn'] = 'PaymentAccount moet cash of bank zijn.',
@@ -114,7 +115,7 @@ Locales['nl'] = {
     ['update_updatecontrole_ongeldige_lokale_versie_in_fxmanifest_lua'] = 'Updatecontrole: ongeldige lokale versie in fxmanifest.lua.',
     ['update_updatecontrole_github_heeft_niet_op_tijd_geantwoord'] = 'Updatecontrole: GitHub heeft niet op tijd geantwoord. Probeer bij een volgende start opnieuw.',
     ['update_updatecontrole_mislukt_http_controleer_repository_branch_en'] = 'Updatecontrole mislukt (HTTP %s). Controleer repository, branch en version.txt.',
-    ['update_updatecontrole_version_txt_bevat_geen_geldige_stabiele'] = 'Updatecontrole: version.txt bevat geen geldige stabiele versie (bijvoorbeeld 1.1.4).',
+    ['update_updatecontrole_version_txt_bevat_geen_geldige_stabiele'] = 'Updatecontrole: version.txt bevat geen geldige stabiele versie (bijvoorbeeld 1.1.5).',
     ['update_nieuwe_versie_beschikbaar_geinstalleerd'] = 'Nieuwe versie beschikbaar: %s (geinstalleerd: %s).',
     ['update_je_gebruikt_de_nieuwste_versie'] = 'Je gebruikt de nieuwste versie (%s).',
     ['update_lokale_versie_is_nieuwer_dan_github'] = 'Lokale versie %s is nieuwer dan GitHub (%s).',
@@ -131,5 +132,5 @@ Locales['nl'] = {
     ['payment_cash'] = 'contant',
     ['input_player_id'] = 'Speler-ID',
     ['input_station_name'] = 'Stationsnaam',
-    ['bridge_check_minimum_version'] = 'ts_bridge 0.0.2(BETA) of nieuwer vereist (API 1)',
+    ['bridge_check_minimum_version'] = 'ts_bridge 0.0.4 of nieuwer vereist (API 1)',
 }

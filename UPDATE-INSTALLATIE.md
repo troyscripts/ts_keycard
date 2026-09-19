@@ -1,13 +1,13 @@
-# ts_keycard 1.1.4 — verplichte ts_bridge 0.0.2(BETA)
+# ts_keycard 1.1.5 — verplichte ts_bridge 0.0.4
 
-Deze update verhoogt ts_keycard van 1.1.3 naar 1.1.4 en sluit hem op ts_bridge aan.
-Gebruik de meegeleverde bridge 0.0.2(BETA). Een eerdere bridge zonder GetStatus/API-controle
+Deze update verhoogt ts_keycard van 1.1.4 naar 1.1.5 en gebruikt de nieuwe centrale updatecontrole.
+Gebruik de meegeleverde bridge 0.0.4. Een eerdere bridge zonder GetStatus/API-controle
 is niet voldoende, ook als die dezelfde exportnamen lijkt te hebben.
 
 1. Maak een backup van je bestaande resources en configuratie.
 2. Stop ts_hostage en ts_keycard als ze draaien, daarna ts_bridge.
-3. Vervang de bridgebestanden door ts_bridge-0.0.2-BETA.zip.
-4. Vervang de keycardbestanden door ts_keycard-1.1.4.zip; behoud de mapnaam ts_keycard.
+3. Vervang de bridgebestanden door ts_bridge-0.0.4.zip.
+4. Vervang de keycardbestanden door ts_keycard-1.1.5.zip; behoud de mapnaam ts_keycard.
 5. Neem eigen instellingen over in de nieuwe config.lua. Zet niet blind de oude config terug.
 6. Start dependencies, bridge en daarna de aangesloten scripts in onderstaande volgorde.
 
@@ -86,3 +86,23 @@ Deurtoegang blijft itemgebaseerd: zie LEESMIJ.md voor de beperkingen van intrekk
 
 Lua/mocks zijn lokaal getest. Dit vervangt geen live test met jouw ESX, bank, inventory
 of deurresource. Apex/okok-resources worden niet meegeleverd of automatisch aangepast.
+
+## Instellingen bij de stap van 1.1.4 naar 1.1.5
+
+Voeg Config.Version = '1.1.5' en Config.NotificationCooldownMs = 5000 toe.
+Pas Config.UpdateCheck.Repository aan naar 'troyscripts/ts_keycard'. Behoud je eigen
+rangen, prijs, betaalwijze, NPC-instellingen en locaties. De opgeslagen /kaartpunt-
+locatie en intrekkingsgeneratie blijven bestaan onder dezelfde resourcenaam.
+
+De configschema-versie van de bridge blijft 0.0.3; vervang zijn programmabestanden
+inclusief manifest en server/updates.lua, maar behoud je eigen configuraties.
+Apex Banking/Billing blijven de ingestelde providers; keycard zelf gebruikt geen facturen.
+De bestaande ts_hostage 1.1.8 werkt met bridge 0.0.4 en hoeft niet opnieuw vervangen.
+
+GitHub-publicatie: version.txt (inhoud 1.1.5) hoort in de hoofdmap van main bij
+https://github.com/troyscripts/ts_keycard. Voor de bridge hoort version.json met
+0.0.4 bij https://github.com/troyscripts/ts_brigde. Publicatie voer je zelf uit.
+
+Controleer de console op keycard 1.1.5, bridge 0.0.4 en configstatus. Test met twee
+spelers een betaalde kaart, gratis kaart, gratis bijwerken en intrekking. Herhaal
+gewone meldingen en controleer dat de intrekkingswaarschuwing toch verschijnt.

@@ -126,7 +126,7 @@ lib.callback.register('ts_keycard:issue', function(src, target, freeReplacement)
     busy[target] = nil
     if not ok then print(TSL('main_troyscripts') .. tostring(result)); return failure(TSL('main_kaartuitgifte_mislukt_bekijk_de_serverconsole')) end
     if result.ok and target ~= src then
-        bridge:Notify(target, { title = TSL('main_politiekaart'), description = result.message, type = 'success' })
+        bridge:Notify(target, { id = 'ts_keycard_feedback', title = TSL('main_politiekaart'), description = result.message, type = 'success' }, Config.NotificationCooldownMs or 5000)
     end
     return result
 end)

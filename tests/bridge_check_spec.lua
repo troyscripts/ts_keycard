@@ -8,7 +8,7 @@ local time,state,sideStatus,events,stops,timers=0,'started',nil,{},0,{}
 local statusFn
 function IsDuplicityVersion() return server end
 function GetCurrentResourceName() return current end
-function GetResourceMetadata() return '0.0.2(BETA)' end
+function GetResourceMetadata() return '0.0.4' end
 function GetResourceState() return state end
 function GetGameTimer() return time end
 function Wait(ms) time=time+ms end

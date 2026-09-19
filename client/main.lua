@@ -5,7 +5,7 @@ local ped, activePoint, visible
 local spawnToken = 0
 local function notify(result)
     if not TSBridgeGuard.IsReady() then return end
-    bridge:Notify({ title = TSL('main_politiekaart'), description = result and result.message or TSL('main_geen_antwoord_ontvangen'), type = result and result.ok and 'success' or 'error' })
+    bridge:Notify({ id = 'ts_keycard_feedback', title = TSL('main_politiekaart'), description = result and result.message or TSL('main_geen_antwoord_ontvangen'), type = result and result.ok and 'success' or 'error' }, Config.NotificationCooldownMs or 5000)
 end
 local function issue(target, freeReplacement)
     if not TSBridgeGuard.IsReady() then return end

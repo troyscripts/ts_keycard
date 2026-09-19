@@ -1,6 +1,6 @@
-# Troy Scripts — ts_keycard 1.1.4
+# Troy Scripts — ts_keycard 1.1.5
 
-**Vereist ts_bridge 0.0.2(BETA), ox_lib, ESX, ox_inventory, ox_target en OneSync.**
+**Vereist ts_bridge 0.0.4, ox_lib, ESX, ox_inventory, ox_target en OneSync.**
 Spelergegevens en integraties lopen nu via ts_bridge. Lees UPDATE-INSTALLATIE.md vóór
 het bijwerken; daarin staan startvolgorde, providerinstellingen, betaalkeuze en tests.
 
@@ -57,12 +57,12 @@ wijzigen zonder gameplaycode aan te passen. Eigen opgeslagen stationsnamen blijv
 
 ## Bridgecontrole en updates
 
-Het manifest vereist ts_bridge en vermeldt minimaal 0.0.2. De client en server controleren
+Het manifest vereist ts_bridge en vermeldt minimaal 0.0.4. De client en server controleren
 API, versie en functies. Bij een fout worden gameplaybestanden niet actief en stopt de
 server de resource. Herstart beide scripts na een bridgeherstart.
 
 De bestaande GitHub-controle blijft één keer per scriptstart actief, configureerbaar via
-Config.UpdateCheck. De repository is troyenrobin-source/ts_keycard; version.txt bevat 1.1.4.
+Config.UpdateCheck. De repository is troyscripts/ts_keycard; version.txt bevat 1.1.5.
 Er wordt niets automatisch geïnstalleerd. Deze bestanden zijn niet op GitHub gepubliceerd.
 
 ## Validatie
@@ -70,3 +70,56 @@ Er wordt niets automatisch geïnstalleerd. Deze bestanden zijn niet op GitHub ge
 Tests met Lua 5.4 en gesimuleerde FiveM/providerfuncties zijn meegeleverd. Ze controleren
 brugcompatibiliteit, locale-fallback, serverrechten, kaartuitgifte en betaalherstel.
 Live werking van jouw bank, inventory, NPC en deuren moet nog worden getest.
+
+## Nieuw in 1.1.5
+
+Vereist ts_bridge **0.0.4**. De bridge verzorgt nu ook de GitHub-updatecontrole,
+naast de bestaande betalingen, inventory, rechten, meldingen en targetkoppelingen.
+Kaartgeneraties, uitgiftebeslissingen en intrekking blijven in keycard: dit zijn
+regels van dit script en horen niet in een algemene bridge.
+
+### Configversie en meldingen
+
+```lua
+Config.Version = '1.1.5'
+Config.NotificationCooldownMs = 5000
+```
+
+Neem deze velden over in je eigen config.lua. De server meldt via de bridge of
+het configschema actueel is. Een ontbrekend versienummer wordt niet automatisch
+verhoogd; neem eerst de instellingen over. Bij ontbreken van de meldingswachttijd
+wordt 5000 ms gebruikt. Een ongeldige waarde wordt gemeld en krijgt die standaard.
+De configversie blijft bij toekomstige updates gelijk zolang het schema niet wijzigt.
+
+Gewone meldingen delen een ID en worden maximaal eenmaal per ingestelde wachttijd
+getoond, zowel lokaal als via de server. De melding dat alle kaarten ingetrokken
+zijn heeft een aparte ID zonder deze limiet, zodat die zichtbaar blijft. Nul schakelt
+de gewone meldingslimiet uit. Bestaande actie- en intrekkingscooldowns blijven bestaan.
+
+### GitHub
+
+De juiste repository is [troyscripts/ts_keycard](https://github.com/troyscripts/ts_keycard).
+Controleer bij het overnemen van een oude config vooral dit blok:
+
+```lua
+Config.UpdateCheck = {
+    Enabled = true,
+    Repository = 'troyscripts/ts_keycard',
+    Branch = 'main'
+}
+```
+
+Plaats version.txt met `1.1.5` in de hoofdmap van die branch naast fxmanifest.lua.
+De centrale bridgecontrole gebruikt het versiebestand, vergelijkt numeriek en toont
+bij een nieuwere versie de GitHub-downloadlink. Er wordt niets automatisch geïnstalleerd.
+Als UpdateCheck helemaal ontbreekt, gelden bovenstaande defaults. Een expliciet
+opgegeven oude repository wordt niet overschreven: pas die zelf aan in je config.
+Publiceren op GitHub is niet uitgevoerd door het maken van deze ZIP.
+
+### Welke configuratie bijwerken?
+
+| Resource | Scriptversie | Vereiste configversie | Actie |
+| --- | --- | --- | --- |
+| ts_keycard | 1.1.5 | 1.1.5 | Nieuwe velden en juiste GitHub-repository overnemen |
+| ts_bridge | 0.0.4 | 0.0.3 | Bestaande correcte config en server_config behouden |
+| ts_hostage | 1.1.8 | 1.1.8 | Geen nieuwe bestanden nodig voor deze keycard-update |

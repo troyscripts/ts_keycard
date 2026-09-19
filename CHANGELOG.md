@@ -1,5 +1,16 @@
 # Changelog — ts_keycard
 
+## 1.1.5 — Bridge 0.0.4, configversie en meldingslimieten
+- GitHub-repository bijgewerkt naar troyscripts/ts_keycard.
+- Updatecontrole gedelegeerd aan CheckForUpdates in ts_bridge; version.txt behouden.
+- Config.Version 1.1.5 en versiecontrole via de bridge toegevoegd.
+- Config.NotificationCooldownMs met standaard 5000 ms voor gewone meldingen.
+- Intrekkingswaarschuwing blijft apart en wordt niet door gewone meldingen onderdrukt.
+- Vereist bridge 0.0.4/API 1 en de nieuwe serverexport CheckForUpdates.
+- README, LEESMIJ, updatehandleiding en testinformatie bijgewerkt.
+- Prijs, cash/bankkeuze, rechten, kaartgeneraties en deurregels behouden.
+
+
 ## 1.1.4 — ts_bridge-integratie en locales
 - Verplicht ts_bridge 0.0.2(BETA), met versie/API/functiecontrole op client en server.
 - ESX, rechten, inventory, hooks, target, meldingen en betalingen via de centrale bridge.
