@@ -1,3 +1,4 @@
+KeycardAudit = {issue=function() end,point=function() end,revoke=function() end,transfer=function() end}
 dofile('locales/nl.lua');dofile('locale.lua')
 TSBridgeGuard={Await=function() return true end,IsReady=function() return true end}
 Config={Item='politie_sleutelkaart',Jobs={police=true},RevokeAce='ts_keycard.revoke',RevokeMinimumGrade=7,RevokeCooldownSeconds=30}

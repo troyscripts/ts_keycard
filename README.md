@@ -1,4 +1,4 @@
-# Troy Scripts — ts_keycard 1.1.5
+# Troy Scripts — ts_keycard 1.1.6
 
 **Vereist ts_bridge 0.0.4, ox_lib, ESX, ox_inventory, ox_target en OneSync.**
 Spelergegevens en integraties lopen nu via ts_bridge. Lees UPDATE-INSTALLATIE.md vóór
@@ -123,3 +123,8 @@ Publiceren op GitHub is niet uitgevoerd door het maken van deze ZIP.
 | ts_keycard | 1.1.5 | 1.1.5 | Nieuwe velden en juiste GitHub-repository overnemen |
 | ts_bridge | 0.0.4 | 0.0.3 | Bestaande correcte config en server_config behouden |
 | ts_hostage | 1.1.8 | 1.1.8 | Geen nieuwe bestanden nodig voor deze keycard-update |
+
+## Webhooks en politiemelding (1.1.6)
+
+Zie WEBHOOKS-INSTALLATIE.md. Vier server-side routes via ts_bridge: issue, revoke, transfer en point.
+Een bevestigde overdracht tussen spelers geeft ook een politiemelding met locatie.

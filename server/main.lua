@@ -62,6 +62,7 @@ lib.callback.register('ts_keycard:setPoint', function(src, station)
     point = { station = station, coords = { x = c.x, y = c.y, z = c.z, w = GetEntityHeading(GetPlayerPed(src)) } }
     SetResourceKvp('issuance_point_v1', json.encode(point))
     TriggerClientEvent('ts_keycard:pointChanged', -1, point)
+    KeycardAudit.point(src, point)
     print((TSL('main_troyscripts_uitgiftepunt_ingesteld_door_speler')):format(src, station))
     return { ok = true, message = TSL('main_uitgiftepunt_opgeslagen') .. station }
 end)
@@ -107,17 +108,26 @@ lib.callback.register('ts_keycard:issue', function(src, target, freeReplacement)
         slots = slots or {}
         for _, item in pairs(slots) do
             if item.metadata and item.metadata.owner == identifier and not KeycardRevocation.isStale(item) then
+                -- Behoud de unieke kaartreferentie en oorspronkelijke betaalinformatie.
+                for _, key in ipairs({'tsKeycardTransaction', 'issuedBy', 'issuanceReason'}) do
+                    metadata[key] = item.metadata[key]
+                end
                 local changed = inv:SetItemMetadata(target, item.slot, metadata)
                 if not changed then return failure(TSL('main_de_kaart_kon_niet_worden_bijgewerkt')) end
+                KeycardAudit.issue(src, target, metadata, 0, 'update')
                 return { ok = true, message = TSL('main_kaart_bijgewerkt_voor') .. name .. '.' }
             end
         end
         KeycardRevocation.clean(target)
+        metadata.issuedBy = issuer.identifier
         if freeReplacement then
             metadata.issuanceReason = TSL('main_gratis_vervanging_na_inname_of_intrekking')
             metadata.issuedBy = issuer.identifier
         end
         local paymentResult = KeycardPayment.issue(owner, target, metadata, freeReplacement)
+        if paymentResult.ok then
+            KeycardAudit.issue(src, target, metadata, paymentResult.paidAmount, freeReplacement and 'replacement' or paymentResult.paymentAccount)
+        end
         if paymentResult.ok and freeReplacement then
             print((TSL('main_troyscripts_gratis_vervangende_kaart_verleend_door_aan')):format(src, target, identifier))
         end

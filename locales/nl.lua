@@ -69,7 +69,7 @@ Locales['nl'] = {
     ['main_troyscripts_gratis_vervangende_kaart_verleend_door_aan'] = '[TroyScripts] Gratis vervangende kaart verleend door %s aan %s (%s)',
     ['main_troyscripts'] = '[TroyScripts] ',
     ['main_kaartuitgifte_mislukt_bekijk_de_serverconsole'] = 'Kaartuitgifte mislukt. Bekijk de serverconsole.',
-    ['main_troyscripts_ts_keycard_persoonlijke_politiekaarten_geladen'] = '[TroyScripts] ts_keycard 1.1.5 | Persoonlijke politiekaarten geladen',
+    ['main_troyscripts_ts_keycard_persoonlijke_politiekaarten_geladen'] = '[TroyScripts] ts_keycard 1.1.6 | Persoonlijke politiekaarten geladen',
     ['main_troyscripts_stel_het_uitgiftepunt_in_het_hb'] = '[TroyScripts] Stel het uitgiftepunt in het HB in met /',
     ['payment_ongeldige_kaartprijs_controleer_config_lua'] = 'Ongeldige kaartprijs. Controleer config.lua.',
     ['payment_paymentaccount_moet_cash_of_bank_zijn'] = 'PaymentAccount moet cash of bank zijn.',
@@ -134,3 +134,37 @@ Locales['nl'] = {
     ['input_station_name'] = 'Stationsnaam',
     ['bridge_check_minimum_version'] = 'ts_bridge 0.0.4 of nieuwer vereist (API 1)',
 }
+
+-- Webhookteksten
+Locales.nl['audit_unknown'] = 'Onbekend'
+Locales.nl['audit_inventory'] = 'Inventaris / offline ID'
+Locales.nl['audit_title_issue'] = 'Politiekaart uitgegeven / bijgewerkt'
+Locales.nl['audit_title_revoke'] = 'Politiekaarten ingetrokken'
+Locales.nl['audit_title_transfer'] = 'Politiekaart verplaatst'
+Locales.nl['audit_title_point'] = 'Kaartpunt geplaatst / verplaatst'
+Locales.nl['audit_actor'] = 'Uitgevoerd door'
+Locales.nl['audit_recipient'] = 'Uitgegeven aan'
+Locales.nl['audit_payment'] = 'Betaling'
+Locales.nl['audit_owner'] = 'Persoon op de kaart'
+Locales.nl['audit_rank'] = 'Rang | baan | rangnummer op kaart'
+Locales.nl['audit_reference'] = 'Kaartreferentie'
+Locales.nl['audit_station'] = 'Bureau / kaartpunt'
+Locales.nl['audit_coords'] = 'Locatie X, Y, Z | richting'
+Locales.nl['audit_scope'] = 'Intrekking'
+Locales.nl['audit_generation'] = 'Nieuwe geldige generatie'
+Locales.nl['audit_all_revoked'] = 'Alle eerder uitgegeven kaarten zijn ongeldig, ook offline en opgeslagen kaarten. Fysieke opruiming kan later plaatsvinden.'
+Locales.nl['audit_update'] = 'Bestaande kaart bijgewerkt; geen betaling'
+Locales.nl['audit_paid'] = 'Betaald: €%s (%s)'
+Locales.nl['audit_free'] = 'Gratis: €0'
+Locales.nl['audit_replacement'] = 'Gratis vervanging door bevoegde uitgever'
+Locales.nl['audit_from'] = 'Van'
+Locales.nl['audit_to'] = 'Naar'
+Locales.nl['audit_action'] = 'Handeling'
+Locales.nl['audit_taken'] = 'Diefstal'
+Locales.nl['audit_transferred'] = 'Overgedragen / verplaatst'
+Locales.nl['audit_count'] = 'Aantal'
+Locales.nl['audit_not_sent'] = '[ts_keycard] Webhook %s niet verzonden. Controleer de server-side routes en bridge.'
+Locales.nl['audit_error'] = '[ts_keycard] Auditlog kon niet worden verwerkt; spelhandeling blijft behouden.'
+
+Locales.nl['audit_police_title'] = 'Politiekaart bij andere speler'
+Locales.nl['audit_police_body'] = 'De kaart van %s (rang: %s) is naar een andere speler verplaatst. Handeling: %s.'

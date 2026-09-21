@@ -98,6 +98,7 @@ lib.callback.register('ts_keycard:revokeAll', function(src)
         end
         R.generation = nextGeneration
         lastRevoke = os.time()
+        KeycardAudit.revoke(src, R.generation)
         local removed, failed = sweep(true)
         for _, playerId in ipairs(GetPlayers()) do
             local id = tonumber(playerId)
@@ -139,6 +140,7 @@ register('swapItems', function(payload)
         queue(payload.toInventory)
         return false
     end
+    KeycardAudit.transfer(payload)
 end)
 register('openInventory', function(payload)
     if hasStale(payload.inventoryId) or hasStale(payload.source) then

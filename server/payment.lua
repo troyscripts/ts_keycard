@@ -79,7 +79,7 @@ local function issue(owner, target, metadata, freeReplacement)
         print(TSL('payment_troy_scripts_handmatige_controle_nodig') .. reference .. TSL('payment_controleer_kaart_betaalaccount_en_society_niet_blind'))
         return failure(TSL('payment_uitgifte_niet_afgerond_de_betaalstatus_moet_worden') .. reference)
     end
-    return { ok = true, message = price > 0
+    return { ok = true, paidAmount = price, paymentAccount = account, message = price > 0
         and (TSL('payment_kaart_gemaakt_voor_betaald_aan_de_society')):format(metadata.ownerName, price, account == 'bank' and TSL('payment_via_de_bank') or TSL('payment_cash'))
         or (TSL('payment_kaart_gratis_gemaakt_voor')):format(metadata.ownerName) }
 end

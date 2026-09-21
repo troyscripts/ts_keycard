@@ -1,3 +1,4 @@
+KeycardAudit = {issue=function() end,point=function() end,revoke=function() end,transfer=function() end}
 dofile('locales/nl.lua');dofile('locale.lua')
 TSBridgeGuard={Await=function() return true end,IsReady=function() return true end}
 local vectorMeta={__sub=function(a,b) return setmetatable({x=a.x-b.x,y=a.y-b.y,z=a.z-b.z},{__len=function(v) return math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z) end}) end}

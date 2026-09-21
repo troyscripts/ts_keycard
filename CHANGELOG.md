@@ -1,5 +1,21 @@
 # Changelog — ts_keycard
 
+## Fix op 1.1.6 — geen versieaanpassing
+- Leeg ox_inventory-zoekresultaat telt als nul kaarten.
+- Korte hercontrole bij nog lopende overdrachten, met afhandeling per kaart.
+- Regressietest voor eerste ontvangen / laatste afgenomen kaart.
+
+## 1.1.6 — Webhooks en politiemelding
+- Uitgifte/bijwerken: uitgever, ontvanger, rang op kaart, bedrag/gratis, kaartreferentie en bureau.
+- Intrekking: uitvoerder en nieuwe generatie; alle oude kaarten ongeldig.
+- Bevestigde inventarisoverdracht: van, naar, uitvoerder, kaarthouder en rang.
+- Uit andermans inventaris pakken heet Diefstal; vrijwillige overdracht heet Overgedragen / verplaatst.
+- Overdracht tussen spelers meldt de locatie aan politie via de bestaande bridge, met G-waypoint en Backspace negeren op bridge 0.0.6.
+- Kaartpunt plaatsen/verplaatsen: uitvoerder, bureau, coördinaten en richting.
+- Nieuwe server_config.lua voor routes, schakelaars, politiejobs en meldingsduur.
+- Gedeelde config.lua en Config.Version blijven ongewijzigd op schema 1.1.5.
+- Geen bridgewijziging nodig; bestaande centrale SendWebhook en AlertJobs worden hergebruikt.
+
 ## 1.1.5 — Bridge 0.0.4, configversie en meldingslimieten
 - GitHub-repository bijgewerkt naar troyscripts/ts_keycard.
 - Updatecontrole gedelegeerd aan CheckForUpdates in ts_bridge; version.txt behouden.

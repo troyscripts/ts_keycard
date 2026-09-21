@@ -3,7 +3,7 @@ TSBridgeGuard = { ready = false, failed = false }
 local G = TSBridgeGuard
 local resource = GetCurrentResourceName()
 local server = IsDuplicityVersion()
-local required = server and { 'CheckConfigVersion', 'CheckForUpdates', 'GetPlayerData', 'HasPermission', 'GetMoney', 'AddMoney', 'RemoveMoney', 'GetSocietyBalance', 'AddSocietyMoney', 'RemoveSocietyMoney', 'GetItemSlots', 'GetInventorySlot', 'GetEmptySlot', 'CanCarryItem', 'AddItem', 'RemoveItem', 'SetItemMetadata', 'GetInventories', 'RegisterInventoryHook', 'RemoveInventoryHook', 'Notify' } or { 'CheckConfigVersion', 'Notify', 'GetTargetResource', 'AddLocalEntity', 'RemoveLocalEntity', 'UseItem', 'ProgressCircle', 'InputDialog', 'AlertDialog' }
+local required = server and { 'SendWebhook', 'AlertJobs', 'CheckConfigVersion', 'CheckForUpdates', 'GetPlayerData', 'HasPermission', 'GetMoney', 'AddMoney', 'RemoveMoney', 'GetSocietyBalance', 'AddSocietyMoney', 'RemoveSocietyMoney', 'GetItemSlots', 'GetInventorySlot', 'GetEmptySlot', 'CanCarryItem', 'AddItem', 'RemoveItem', 'SetItemMetadata', 'GetInventories', 'RegisterInventoryHook', 'RemoveInventoryHook', 'Notify' } or { 'CheckConfigVersion', 'Notify', 'GetTargetResource', 'AddLocalEntity', 'RemoveLocalEntity', 'UseItem', 'ProgressCircle', 'InputDialog', 'AlertDialog' }
 local function fail(reason)
     G.ready, G.failed = false, true
     print((TSL('bridge_check_troy_scripts_gestopt_ts_bridge_controle_mislukt_installeer')):format(resource, reason))
