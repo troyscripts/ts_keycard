@@ -43,6 +43,21 @@ local function forge()
     lib.registerContext({id='ts_keycard_forgery_desk',title='Illegale kaartenhandel',options=options})
     lib.showContext('ts_keycard_forgery_desk')
 end
+exports('useForgeryMaterial',function(data,slot)
+    if not TSBridgeGuard.IsReady() then return end
+    if not Config.Forgery.Enabled then
+        return notify({message='Kaartvervalsing is uitgeschakeld.'})
+    end
+    local p=points.forgery
+    if not p or not p.coords then
+        return notify({message='Er is nog geen vervalspunt geplaatst. Een beheerder kan /vervalspunt gebruiken.'})
+    end
+    local c=p.coords
+    if #(GetEntityCoords(PlayerPedId())-vector3(c.x,c.y,c.z)) > Config.UseDistance then
+        return notify({message='Ga naar de illegale kaartenhandel om deze materialen te gebruiken.'})
+    end
+    forge()
+end)
 local function remove(kind)
     local ped=entities[kind]
     if ped and DoesEntityExist(ped) then

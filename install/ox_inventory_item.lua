@@ -19,6 +19,9 @@
     description = 'Vervalste toegangskaart voor ambulancedeuren.',
     client = { image = 'vervalste_ambulancekaart.png', export = 'ts_keycard.useExtraCard' }
 },
-['lege_sleutelpas'] = { label = 'Lege sleutelpas', weight = 20, stack = true, close = true },
-['kaartchip'] = { label = 'Kaartchip', weight = 10, stack = true, close = true },
-['codeerset'] = { label = 'Codeerset', weight = 100, stack = true, close = true },
+['lege_sleutelpas'] = { label = 'Lege sleutelpas', weight = 20, stack = true, close = true,
+    client = { image = 'lege_sleutelpas.png', export = 'ts_keycard.useForgeryMaterial' } },
+['kaartchip'] = { label = 'Kaartchip', weight = 10, stack = true, close = true,
+    client = { image = 'kaartchip.png', export = 'ts_keycard.useForgeryMaterial' } },
+['codeerset'] = { label = 'Codeerset', weight = 100, stack = true, close = true,
+    client = { image = 'codeerset.png', export = 'ts_keycard.useForgeryMaterial' } },
