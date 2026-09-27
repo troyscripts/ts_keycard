@@ -121,7 +121,8 @@ exports('useExtraCard',function(data,slot)
         local card=lib.callback.await('ts_keycard:readExtra',false,used.slot or (slot and slot.slot) or data.slot)
         if not card then return notify({message='Kaart ongeldig, ingetrokken of verlopen.'}) end
         bridge:Notify({id='ts_keycard_card',title=card.kind=='ambulance' and 'Ambulancekaart' or 'Vervalste kaart',
-            description=('%s | %s | %s'):format(card.name or '?',card.rank or '?',card.station or '?'),type='inform'},
+            description=('%s | %s | %s%s'):format(card.name or '?',card.rank or '?',card.station or '?',
+                card.usesRemaining and (' | '..card.usesRemaining..'/10 gebruiken over') or ''),type='inform'},
             Config.NotificationCooldownMs or 5000)
     end)
 end)

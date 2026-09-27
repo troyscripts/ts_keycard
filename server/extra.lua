@@ -132,8 +132,8 @@ lib.callback.register('ts_keycard:readExtra', function(src,slot)
     if item.name~=amb.Item and item.name~=forgery.Items.police and item.name~=forgery.Items.ambulance then return false end
     if KeycardRevocation.isStale(item) then return false end
     local m=item.metadata
-    if item.name~=amb.Item and (type(m.expiresAt)~='number' or m.expiresAt<=os.time()) then return false end
-    return {name=m.ownerName,rank=m.rank,station=m.station,kind=item.name==amb.Item and 'ambulance' or 'forgery'}
+    return {name=m.ownerName,rank=m.rank,station=m.station,kind=item.name==amb.Item and 'ambulance' or 'forgery',
+        usesRemaining=item.name~=amb.Item and (tonumber(m.usesRemaining) or 10) or nil}
 end)
 local function legitimate(item)
     return item and (item.name==Config.Item or item.name==amb.Item)
@@ -171,7 +171,7 @@ lib.callback.register('ts_keycard:forge',function(src,slot)
         local m={owner=original.metadata.owner,ownerName=original.metadata.ownerName,
             rank=original.metadata.rank,station=original.metadata.station,job=original.metadata.job,
             sourceItem=original.name,sourceReference=original.metadata.tsKeycardTransaction,
-            keycardGeneration=KeycardRevocation.generation,forged=true,expiresAt=os.time()+forgery.DurationSeconds,
+            keycardGeneration=KeycardRevocation.generation,forged=true,usesRemaining=10,
             forgedBy=p.identifier,description='Vervalste kaart | '..(original.metadata.station or '?')}
         local forgedItem=original.name==Config.Item and forgery.Items.police or forgery.Items.ambulance
         if not bridge:CanCarryItem(src,forgedItem,1,m) then return fail('Geen ruimte voor de vervalste kaart.') end
@@ -220,11 +220,52 @@ exports('CanUseDoor',function(src,department)
                 local m=item.metadata
                 if name==fake then
                     if m.forged==true and m.sourceItem==(department=='police' and Config.Item or amb.Item)
-                        and type(m.expiresAt)=='number' and m.expiresAt>os.time() then return true end
+                        and (tonumber(m.usesRemaining) or 10)>0 then return true end
                 elseif m.owner and m.job and (department=='police' and Config.Jobs[m.job] or amb.Jobs[m.job]) then return true end
             end
         end end
     end
     return false
+end)
+-- Valora verstuurt dit serverevent na een geslaagde statuswijziging.
+-- Alleen deuren die de vervalste kaart expliciet als item eisen tellen mee.
+local function requiresItem(door, name)
+    local items=type(door)=='table' and type(door.access)=='table' and door.access.items
+    if type(items)~='table' then return false end
+    for _,value in pairs(items) do if value==name then return true end end
+    return false
+end
+AddEventHandler('vlr_doorlock:stateChanged',function(playerId,doorId,locked)
+    if locked~=false and locked~=0 then return end
+    if type(playerId)~='number' or playerId<1 or not GetPlayerName(playerId) then return end
+    if GetResourceState('vlr_doorlock')~='started' or not TSBridgeGuard.IsReady() then return end
+    local ok,door=pcall(function() return exports.vlr_doorlock:getDoor(doorId) end)
+    if not ok or type(door)~='table' then return end
+    for _,name in ipairs({forgery.Items.police,forgery.Items.ambulance}) do
+        if requiresItem(door,name) then
+            local slots,err=inv:GetItemSlots(playerId,name)
+            if err then print('[ts_keycard] Kon vervalst kaartgebruik niet tellen: '..tostring(err)); return end
+            for _,item in pairs(slots or {}) do
+                local m=item.metadata
+                if type(m)=='table' and m.forged==true and (tonumber(m.usesRemaining) or 10)>0 then
+                    local remaining=(tonumber(m.usesRemaining) or 10)-1
+                    if remaining==0 then
+                        if inv:RemoveItem(playerId,name,1,nil,item.slot) then
+                            print(('[ts_keycard] Vervalste kaart opgebruikt door speler %s op deur %s'):format(playerId,tostring(doorId)))
+                        else print('[ts_keycard] Kon opgebruikte vervalste kaart niet verwijderen.') end
+                    else
+                        local updated={}
+                        for key,value in pairs(m) do updated[key]=value end
+                        updated.usesRemaining=remaining
+                        updated.description=('Vervalste kaart | %s | %s/10 gebruiken'):format(m.station or '?',remaining)
+                        if not inv:SetItemMetadata(playerId,item.slot,updated) then
+                            print('[ts_keycard] Kon resterende kaartgebruiken niet opslaan.')
+                        end
+                    end
+                    return
+                end
+            end
+        end
+    end
 end)
 AddEventHandler('playerDropped',function() locks[source]=nil end)

@@ -10,18 +10,15 @@ local queued, notified, lastRevoke = {}, {}, 0
 function R.isStale(item)
     if type(item) ~= 'table' then return false end
     local fake = Config.Forgery and Config.Forgery.Items or {}
+    -- Intrekken geldt uitsluitend voor originele uitgegeven kaarten.
     local known = item.name == Config.Item or item.name == (Config.Ambulance or {}).Item
-        or item.name == fake.police or item.name == fake.ambulance
     if not known then return false end
     local m = item.metadata or {}
     return (tonumber(m.keycardGeneration) or 0) ~= R.generation
-        or ((item.name == fake.police or item.name == fake.ambulance)
-            and (type(m.expiresAt) ~= 'number' or m.expiresAt <= os.time()))
 end
 
 local function cardItems()
-    local fake = Config.Forgery and Config.Forgery.Items or {}
-    return { Config.Item, (Config.Ambulance or {}).Item, fake.police, fake.ambulance }
+    return { Config.Item, (Config.Ambulance or {}).Item }
 end
 
 local function announce(src)
@@ -168,8 +165,7 @@ end)
 register('createItem', function(payload)
     if (tonumber((payload.metadata or {}).keycardGeneration) or 0) ~= R.generation then queue(payload.inventoryId) end
 end, { itemFilter = { [Config.Item] = true,
-    [Config.Ambulance.Item] = true,
-    [Config.Forgery.Items.police] = true, [Config.Forgery.Items.ambulance] = true } })
+    [Config.Ambulance.Item] = true } })
 
 end
 registerHooks()
