@@ -94,12 +94,23 @@ RegisterNetEvent('ts_keycard:pointChanged', function(point) if source == 65535 t
 CreateThread(function() setPoint(lib.callback.await('ts_keycard:getPoint', false)) end)
 RegisterCommand(Config.SetupCommand, function()
     if not TSBridgeGuard.IsReady() then return end
-    if not lib.callback.await('ts_keycard:canSetup', false) then
+    local policeAllowed = lib.callback.await('ts_keycard:canSetup', false)
+    local ambulanceAllowed = lib.callback.await('ts_keycard:canSetupAmbulance', false)
+    if not policeAllowed and not ambulanceAllowed then
         return notify({ message = TSL('main_je_mist_de_beheerrechten_voor_dit_commando') })
+    end
+    local department = policeAllowed and 'police' or 'ambulance'
+    if policeAllowed and ambulanceAllowed then
+        local choice = bridge:InputDialog('Uitgiftepunt instellen', {{ type = 'select', label = 'Afdeling', required = true,
+            options = {{ value = 'police', label = 'Politie' }, { value = 'ambulance', label = 'Ambulance' }} }})
+        if not choice then return end
+        department = choice[1]
     end
     local answer = bridge:InputDialog(TSL('main_uitgiftepunt_instellen'), {{ type = 'input', label = TSL('input_station_name'),
         description = TSL('main_je_huidige_positie_en_kijkrichting_worden_het'), required = true, min = 1, max = 48 }})
-    if answer then notify(lib.callback.await('ts_keycard:setPoint', false, answer[1])) end
+    if answer then
+        notify(lib.callback.await(department == 'ambulance' and 'ts_keycard:setAmbulancePoint' or 'ts_keycard:setPoint', false, answer[1]))
+    end
 end, false)
 
 local function close()

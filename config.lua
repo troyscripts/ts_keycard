@@ -1,6 +1,6 @@
 -- Vereist ts_bridge 0.0.4, vóór dit script starten. Teksten: locales/nl.lua.
 Config = {}
-Config.Version = '1.1.5' -- configschema; pas aan na overnemen van de nieuwe velden
+Config.Version = '1.1.7' -- configschema; pas aan na overnemen van de nieuwe velden
 Config.NotificationCooldownMs = 5000 -- gewone meldingen; intrekkingswaarschuwing blijft apart
 Config.Locale = 'nl' -- Hoofdtaal; teksten staan in locales/nl.lua
 Config.Item = 'politie_sleutelkaart'
@@ -43,6 +43,32 @@ Config.RevokeNotification = {
 Config.IssuancePoint = {
     station = TSL('config_politie_gemert'),
     coords = vector4(445.4518, -994.7004, 30.7107, 180.0)
+}
+
+-- Ambulance heeft een eigen kaart, NPC en uitgiftepunt. Plaats het punt met /kaartpunt
+-- terwijl je als ambulance in dienst bent; owner/admin kiest de afdeling in het menu.
+Config.Ambulance = {
+    Item = 'ambulance_sleutelkaart', Jobs = { ambulance = true },
+    IssueMinimumGrade = 0, IssueOthersMinimumGrade = 7,
+    SetupMinimumGrade = 7, Price = 10, FreeMinimumGrade = 7,
+    SocietyAccount = 'ambulance',
+    Ped = { model = 's_m_m_paramedic_01', scenario = 'WORLD_HUMAN_CLIPBOARD', spawnDistance = 70.0, zOffset = -1.0 },
+    -- false totdat het ambulance-uitgiftepunt met /kaartpunt wordt geplaatst.
+    IssuancePoint = false
+}
+
+-- Illegale handel: zet het verkooppunt zelf met /vervalspunt (ACE ts_keycard.admin).
+-- Materialen worden bij een geslaagde vervalsing verbruikt, samen met de gestolen kaart.
+Config.Forgery = {
+    Enabled = true, Point = false, SetupCommand = 'vervalspunt',
+    Ped = { model = 'g_m_y_mexgoon_02', scenario = 'WORLD_HUMAN_STAND_IMPATIENT', spawnDistance = 65.0, zOffset = -1.0 },
+    Items = { police = 'vervalste_politiekaart', ambulance = 'vervalste_ambulancekaart' },
+    DurationSeconds = 86400,
+    Materials = {
+        { item = 'lege_sleutelpas', count = 1, price = 500 },
+        { item = 'kaartchip', count = 1, price = 750 },
+        { item = 'codeerset', count = 1, price = 1250 }
+    }
 }
 
 -- Eenmalige GitHub-updatecontrole bij het starten; installeert niets automatisch.

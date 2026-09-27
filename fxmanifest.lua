@@ -3,11 +3,11 @@ game 'gta5'
 lua54 'yes'
 name 'ts_keycard'
 author 'TroyScripts'
-description 'Persoonlijke politiekaarten; vereist ts_bridge 0.0.4'
-version '1.1.6'
+description 'Politie- en ambulancekaarten met vervalsing; vereist ts_bridge 0.0.4'
+version '1.1.7'
 shared_scripts { '@ox_lib/init.lua', 'locales/*.lua', 'locale.lua', 'config.lua', 'bridge_check.lua', 'config_check.lua' }
-client_script 'client/main.lua'
-server_scripts { 'server_config.lua', 'server/audit.lua', 'server/revocation.lua', 'server/payment.lua', 'server/main.lua', 'server/update.lua' }
+client_scripts { 'client/main.lua', 'client/extra.lua' }
+server_scripts { 'server_config.lua', 'server/audit.lua', 'server/revocation.lua', 'server/payment.lua', 'server/main.lua', 'server/extra.lua', 'server/update.lua' }
 ui_page 'html/index.html'
 files { 'html/index.html', 'html/style.css', 'html/app.js', 'html/art.svg' }
 dependencies { 'ts_bridge', 'ox_lib', '/onesync' }

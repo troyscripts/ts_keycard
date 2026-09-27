@@ -112,3 +112,9 @@
 ### Validatie
 
 Lua-syntax en JavaScript-syntax gecontroleerd. Serverlogica getest met nagebootste ESX-, inventory- en FiveM-functies: onbevoegde uitgifte, afstand, routing bucket, juiste ontvanger, volle inventory, rangwijziging, geen dubbel item bij bijwerken en slotgebonden kaartweergave. Het SVG-ontwerp is naar PNG gerenderd en bekeken. Een volledige browsercontrole was niet beschikbaar in de bouwomgeving. Live FiveM-, ox_inventory- en VLR-gedrag moet ingame worden getest.
+
+## 1.1.7
+- Ambulancekaart en eigen uitgifte via hetzelfde `/kaartpunt`, met aparte NPC en society.
+- Illegale materialenverkoop en vervalsing van een gestolen originele kaart.
+- Aparte vervalste politie- en ambulancekaart, verloop na 24 uur en inventory-opruiming.
+- Vier verschillende inventory-afbeeldingen; politie-embleem vereenvoudigd tot één vlam.

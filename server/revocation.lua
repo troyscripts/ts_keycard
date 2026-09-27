@@ -8,8 +8,20 @@ local R = KeycardRevocation
 local queued, notified, lastRevoke = {}, {}, 0
 
 function R.isStale(item)
-    return type(item) == 'table' and item.name == Config.Item
-        and (tonumber((item.metadata or {}).keycardGeneration) or 0) ~= R.generation
+    if type(item) ~= 'table' then return false end
+    local fake = Config.Forgery and Config.Forgery.Items or {}
+    local known = item.name == Config.Item or item.name == (Config.Ambulance or {}).Item
+        or item.name == fake.police or item.name == fake.ambulance
+    if not known then return false end
+    local m = item.metadata or {}
+    return (tonumber(m.keycardGeneration) or 0) ~= R.generation
+        or ((item.name == fake.police or item.name == fake.ambulance)
+            and (type(m.expiresAt) ~= 'number' or m.expiresAt <= os.time()))
+end
+
+local function cardItems()
+    local fake = Config.Forgery and Config.Forgery.Items or {}
+    return { Config.Item, (Config.Ambulance or {}).Item, fake.police, fake.ambulance }
 end
 
 local function announce(src)
@@ -21,12 +33,14 @@ end
 function R.clean(id)
     local removed, failed = 0, 0
     -- Search produces a separate slot list; remove via the inventory API, not table edits.
-    local items, err = inv:GetItemSlots(id, Config.Item)
-    if err then error(TSL('revocation_inventory_niet_beschikbaar') .. tostring(err)) end
-    for _, item in pairs(items or {}) do
-        if R.isStale(item) then
-            local ok = inv:RemoveItem(id, Config.Item, item.count, nil, item.slot)
-            if ok then removed = removed + item.count else failed = failed + 1 end
+    for _, name in ipairs(cardItems()) do
+        local items, err = inv:GetItemSlots(id, name)
+        if err then error(TSL('revocation_inventory_niet_beschikbaar') .. tostring(err)) end
+        for _, item in pairs(items or {}) do
+            if R.isStale(item) then
+                local ok = inv:RemoveItem(id, name, item.count, nil, item.slot)
+                if ok then removed = removed + item.count else failed = failed + 1 end
+            end
         end
     end
     if removed > 0 and type(id) == 'number' and GetPlayerName(id) then announce(id) end
@@ -34,10 +48,12 @@ function R.clean(id)
 end
 
 local function hasStale(id)
-    local items, err = inv:GetItemSlots(id, Config.Item)
-    if err then error(TSL('revocation_inventory_niet_beschikbaar') .. tostring(err)) end
-    for _, item in pairs(items or {}) do
-        if R.isStale(item) then return true end
+    for _, name in ipairs(cardItems()) do
+        local items, err = inv:GetItemSlots(id, name)
+        if err then error(TSL('revocation_inventory_niet_beschikbaar') .. tostring(err)) end
+        for _, item in pairs(items or {}) do
+            if R.isStale(item) then return true end
+        end
     end
     return false
 end
@@ -151,7 +167,9 @@ register('openInventory', function(payload)
 end)
 register('createItem', function(payload)
     if (tonumber((payload.metadata or {}).keycardGeneration) or 0) ~= R.generation then queue(payload.inventoryId) end
-end, { itemFilter = { [Config.Item] = true } })
+end, { itemFilter = { [Config.Item] = true,
+    [Config.Ambulance.Item] = true,
+    [Config.Forgery.Items.police] = true, [Config.Forgery.Items.ambulance] = true } })
 
 end
 registerHooks()

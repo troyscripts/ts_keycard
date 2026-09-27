@@ -1,0 +1,11 @@
+# ts_keycard 1.1.7 — installatie
+
+Plaats uitsluitend de bestanden uit dit updatepakket over de bestaande resource. Maak vooraf een kopie van je eigen `config.lua`: deze update voegt nieuwe velden toe. Neem eventuele eigen politiecoördinaten, prijzen en instellingen over in de nieuwe config. Zet de inhoud van `install/ox_inventory_item.lua` in de bestaande `return { ... }` van `ox_inventory/data/items.lua`; voeg de politiekaart daar niet dubbel toe. Kopieer de vier PNG's uit `install/` naar `ox_inventory/web/images/`. Herstart de server nadat de nieuwe items zijn geregistreerd.
+
+- `/kaartpunt`: politieleiding plaatst het politiepunt; ambulanceleiding plaatst het ambulancepunt. Owner/admin kiest de afdeling. Het al opgeslagen politiepunt blijft behouden.
+- `/vervalspunt`: owner/admin met ACE `ts_keycard.admin` plaatst de illegale verkoper en werkbank.
+- Ambulance: eigen NPC, item, prijs en society `ambulance` via ts_bridge. Controleer dat de society alias in ts_bridge bestaat.
+- Illegale verkoper: een speler zonder politie- of ambulancejob koopt `lege_sleutelpas`, `kaartchip` en `codeerset` met contant geld. Voor vervalsen voert hij het inventory-slot van een geldige, gestolen originele kaart in. De originele kaart en alle materialen worden verbruikt. De vervalste kaart verloopt na 24 uur en wordt daarna uit inventarissen verwijderd. De server controleert items, eigenaar, afstand en saldo.
+- Wijs zelf `politie_sleutelkaart` en `vervalste_politiekaart` toe aan de gewenste politiedeuren; `ambulance_sleutelkaart` en `vervalste_ambulancekaart` aan de gewenste ambulancedeuren. Gebruik de items afzonderlijk per deur. Als `vlr_doorlock` uitsluitend itemaanwezigheid controleert, kan het de metadata en de vervaltijd niet afdwingen bij het openen; de resource ruimt verlopen kaarten periodiek op. Een deurintegratie kan daarnaast server-side `exports.ts_keycard:CanUseDoor(source, 'police')` of `'ambulance'` gebruiken voor directe controle.
+
+Test met twee spelers: eigen ambulancekaart, collega-uitgifte, betaalde uitgifte, gestolen kaart en alle drie de materialen, mislukte vervalsing zonder een materiaal, juiste en onjuiste deur, intrekking en verval. Dit pakket is statisch gecontroleerd; een live FiveM-test is nog nodig.
