@@ -36,6 +36,68 @@ local function card(fields, m)
     fields[#fields+1] = field('reference', m.tsKeycardTransaction)
     fields[#fields+1] = field('station', m.station)
 end
+-- Alleen bevestigde diefstal van originele kaarten start de tienminutentermijn.
+-- KVP bewaart openstaande én afgehandelde meldingen tot de volgende intrekking.
+local theftStorage = 'theft_alerts_v1'
+local thefts = {}
+do
+    local raw = GetResourceKvpString(theftStorage)
+    if raw then
+        local ok, value = pcall(json.decode, raw)
+        if ok and type(value) == 'table' then thefts = value end
+    end
+end
+local function saveThefts()
+    SetResourceKvp(theftStorage, json.encode(thefts))
+end
+local function alert(title, description, location)
+    local police = (KeycardAuditConfig or {}).PoliceAlert or {}
+    if police.Enabled == false then return false end
+    local ok, result = pcall(function()
+        return bridge:AlertJobs(police.Jobs or { police = true }, {
+            title = TSL(title), description = description
+        }, location, police.WaypointSeconds or 60)
+    end)
+    if not ok or result == false then print(TSL('audit_error')); return false end
+    return true
+end
+local function stolen(key, itemName, m, location)
+    if thefts[key] then return end
+    thefts[key] = { due = os.time() + 600, generation = tonumber(m.keycardGeneration) or 0,
+        ownerName = m.ownerName or '?', rank = m.rank or '?', item = itemName,
+        location = location }
+    saveThefts()
+    alert('audit_theft_title', TSL('audit_theft_body', m.ownerName or '?', m.rank or '?'), location)
+end
+A.forge = safe(function(src, m)
+    local ped = GetPlayerPed(src)
+    local c = ped and ped ~= 0 and GetEntityCoords(ped)
+    if not c then return end
+    alert('audit_forgery_title', TSL('audit_forgery_body', m.ownerName or '?', m.station or '?'),
+        { x = c.x, y = c.y, z = c.z })
+end)
+CreateThread(function()
+    while true do
+        Wait(1000)
+        if TSBridgeGuard.IsReady() and KeycardRevocation then
+            local changed = false
+            for key, entry in pairs(thefts) do
+                if type(entry) ~= 'table' or type(entry.due) ~= 'number'
+                    or entry.generation ~= KeycardRevocation.generation then
+                    thefts[key] = nil
+                    changed = true
+                elseif not entry.sent and os.time() >= entry.due then
+                    -- Locatie blijft de oorspronkelijke diefstallocatie, geen live tracking.
+                    if alert('audit_revoke_ready_title', TSL('audit_revoke_ready_body', entry.ownerName or '?'), entry.location) then
+                        entry.sent = true
+                        changed = true
+                    end
+                end
+            end
+            if changed then saveThefts() end
+        end
+    end
+end)
 A.issue = safe(function(src, target, m, price, account)
     local status = account == 'update' and TSL('audit_update')
         or (tonumber(price) and price > 0 and TSL('audit_paid'):format(price, account or '?') or TSL('audit_free'))
@@ -55,8 +117,8 @@ end)
 local function inventoryId(value)
     return type(value) == 'table' and value.id or value
 end
-local function count(id, metadata)
-    local slots, err = bridge:GetItemSlots(id, Config.Item)
+local function count(id, itemName, metadata)
+    local slots, err = bridge:GetItemSlots(id, itemName)
     if err or slots == nil then return nil end
     if slots == false then return 0 end -- ox_inventory: geen exemplaren van dit item
     if type(slots) ~= 'table' then return nil end
@@ -79,10 +141,10 @@ A.transfer = safe(function(payload)
     local from, to = inventoryId(payload.fromInventory), inventoryId(payload.toInventory)
     if not from or not to or tostring(from) == tostring(to) then return end
     local function track(item, old, new, oldType, newType)
-        if type(item) ~= 'table' or item.name ~= Config.Item then return end
+        if type(item) ~= 'table' or (item.name ~= Config.Item and item.name ~= (Config.Ambulance or {}).Item) then return end
         local m = {}
         for k,v in pairs(item.metadata or {}) do m[k] = v end
-        local beforeOld, beforeNew = count(old, m), count(new, m)
+        local beforeOld, beforeNew = count(old, item.name, m), count(new, item.name, m)
         if not beforeOld or not beforeNew then return end
         local location
         if oldType == 'player' and newType == 'player' and police.Enabled ~= false then
@@ -100,7 +162,8 @@ A.transfer = safe(function(payload)
         if location then fields[#fields+1] = field('coords', ('%.3f, %.3f, %.3f'):format(location.x, location.y, location.z)) end
         -- swapItems is een VOOR-hook. Controleer na afloop beide inventarissen;
         -- een geweigerde handeling mag nooit als geslaagde overdracht worden gelogd.
-        local key = m.tsKeycardTransaction or table.concat({tostring(m.owner), tostring(m.issuedAt), tostring(m.keycardGeneration)}, '|')
+        local reference = m.tsKeycardTransaction or table.concat({tostring(m.owner), tostring(m.issuedAt), tostring(m.keycardGeneration)}, '|')
+        local key = item.name .. ':' .. tostring(reference)
         local token = {}
         pendingTransfers[key] = token
         local attempts = 0
@@ -108,18 +171,18 @@ A.transfer = safe(function(payload)
             if pendingTransfers[key] ~= token then return end
             attempts = attempts + 1
             local ok = pcall(function()
-                local afterOld, afterNew = count(old, m), count(new, m)
+                local afterOld, afterNew = count(old, item.name, m), count(new, item.name, m)
                 if afterOld and afterNew and afterOld < beforeOld and afterNew > beforeNew then
                     pendingTransfers[key] = nil
                     fields[#fields+1] = field('count', math.min(beforeOld - afterOld, afterNew - beforeNew))
-                    send('transfer', fields)
-                    if location then
-                        bridge:AlertJobs(police.Jobs or { police = true }, {
-                            title = TSL('audit_police_title'),
-                            description = TSL('audit_police_body'):format(m.ownerName or '?', m.rank or '?',
-                                taken and TSL('audit_taken') or TSL('audit_transferred'))
-                        }, location, police.WaypointSeconds or 60)
+                    if taken and police.Enabled ~= false then
+                        stolen(key, item.name, m, location)
+                    elseif location then
+                        alert('audit_police_title', TSL('audit_police_body', m.ownerName or '?',
+                            m.rank or '?', TSL('audit_transferred')), location)
                     end
+                    -- Een defecte webhook mag de politiemelding niet verhinderen.
+                    send('transfer', fields)
                 elseif attempts < 5 then
                     SetTimeout(100, confirm) -- een andere hook/provider kan nog bezig zijn
                 else

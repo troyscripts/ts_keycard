@@ -1,14 +1,25 @@
 dofile('locales/nl.lua'); dofile('locale.lua')
-Config={Item='card'}
-TSBridgeGuard={Await=function() return true end}
+Config={Item='card',Ambulance={Item='ambcard'}}
+TSBridgeGuard={Await=function() return true end,IsReady=function() return true end}
 dofile('server_config.lua')
 local logs,timers,items,alerts={},{},{},{}
+local clock=1000
+os.time=function() return clock end
+local storage
+function GetResourceKvpString() return storage end
+function SetResourceKvp(_,value) storage=value end
+json={encode=function(v) return v end,decode=function(v) return v end}
+KeycardRevocation={generation=0}
+local background
+function CreateThread(fn) background=coroutine.create(fn);assert(coroutine.resume(background)) end
+function Wait() coroutine.yield() end
+local function poll() local ok,err=coroutine.resume(background);assert(ok,err) end
 function GetPlayerPed(id) return id end
 function GetEntityCoords() return {x=10,y=20,z=30} end
 local api={}
 function api:GetPlayerData(id) return {name='Person'..tostring(id),identifier='char'..tostring(id)} end
 function api:SendWebhook(route,url,payload) logs[#logs+1]={route=route,payload=payload};return true end
-function api:AlertJobs(jobs,data,coords,seconds) alerts[#alerts+1]={coords=coords,jobs=jobs};assert(coords.x==10 and seconds==60) end
+function api:AlertJobs(jobs,data,coords,seconds) alerts[#alerts+1]={coords=coords,jobs=jobs,data=data};assert(coords.x==10 and seconds==60) end
 function api:GetItemSlots(id)
  local value=items[id]
  if not value or next(value)==nil then return false end
@@ -45,4 +56,25 @@ local oldAlerts=#alerts
 KeycardAudit.transfer(payload);items[1]={};items[2]={card};flush();assert(#logs==8 and #alerts==oldAlerts+1,'police independent of webhooks')
 KeycardAuditConfig.Enabled=true;api.SendWebhook=function() error('secret-url') end
 assert(pcall(KeycardAudit.issue,1,2,card.metadata,0,'cash'),'audit error must be isolated')
-print('audit cases passed')
+-- Exacte termijn, eenmalige herinnering, herstart en vervallen generatie.
+local n=#alerts
+clock=1599;poll();assert(#alerts==n)
+clock=1600;poll();assert(#alerts==n+2,'two unique stolen cards become due')
+poll();assert(#alerts==n+2,'reminders only once')
+dofile('server/audit.lua');poll();assert(#alerts==n+2,'restart must not resend completed reminders')
+api.SendWebhook=function() return true end
+payload.source=2;payload.action='move';payload.toSlot=nil
+local ambulance={name='ambcard',count=1,metadata={owner='ambulance1',ownerName='Ambu',tsKeycardTransaction='amb1'}}
+payload.fromSlot=ambulance;items[1]={ambulance};items[2]={}
+KeycardAudit.transfer(payload);items[1]={};items[2]={ambulance};flush()
+assert(#alerts==n+3 and alerts[#alerts].data.title==TSL('audit_theft_title'))
+dofile('server/audit.lua');clock=2200;poll();assert(#alerts==n+4,'pending timer survives restart')
+ambulance.metadata.tsKeycardTransaction='amb2';items[1]={ambulance};items[2]={}
+KeycardAudit.transfer(payload);items[1]={};items[2]={ambulance};flush()
+local beforeRevoke=#alerts
+KeycardRevocation.generation=1;clock=2800;poll();assert(#alerts==beforeRevoke,'no reminder for revoked cards')
+KeycardAudit.forge(2,ambulance.metadata)
+assert(#alerts==beforeRevoke+1 and alerts[#alerts].data.title==TSL('audit_forgery_title'))
+KeycardAuditConfig.PoliceAlert.Enabled=false
+KeycardAudit.forge(2,ambulance.metadata);assert(#alerts==beforeRevoke+1)
+print('audit cases passed: theft, ambulance, cancelled transfer, 600s, restart, deduplication, revocation, forgery')

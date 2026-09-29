@@ -1,13 +1,27 @@
-VALIDATIE ts_keycard 1.1.5 + ts_bridge 0.0.4
-Lua 5.4-syntax en keycard JavaScript-syntax gecontroleerd.
-Keycard: bridge_check, payment, main, revocation, locales en new_settings tests geslaagd.
-Bridge: gedeelde GitHub-checker, meldingen, configvalidatie, providerherstel,
-Apex Banking/Billing en bestaande compatibiliteit getest met gesimuleerde providers.
+ts_keycard 1.2.1 — lokale validatie
 
-Getest: configschema/fallback, melding-ID en wachttijd, aparte intrekkingswaarschuwing,
-TXT/JSON-updatecontrole, versie van aanroepende resource, dubbele aanvraag, timeout,
-HTTP-fouten, stop/herstart en veilige downloadlink. Bestaande uitgifte, rechten,
-terugbetaling, onzeker betaalresultaat, intrekking en hooks blijven slagen.
+GESLAAGD
+- Alle uitvoerbare Lua-bestanden gecompileerd met liblua 5.4.
+  install/ox_inventory_item.lua is een bestaand tabel-fragment, geen standalone script.
+- audit_spec.lua: geweigerde overdracht, diefstal, vrijwillige overdracht,
+  omwisselen, ambulancekaart, webhook-onafhankelijkheid, 599/600 seconden,
+  herstart met openstaande/afgehandelde meldingen, duplicaten en intrekking.
+- forgery_spec.lua: melding vóór afronding, annuleren zonder verbruik,
+  meldingslimiet, serverduur, vervallen poging, dubbele afronding,
+  ontbrekende materialen en eigen kaart.
+- locales_spec.lua: Nederlandse fallback en tekstformattering.
+- main_spec.lua: rechten, rangen, afstand, uitgifte en bijwerken.
 
-Dit zijn lokale mocktests; geen live FiveM/Apex/inventory/deur- of GitHub-publicatietest.
-De minimumversie- en API-controle is met de bridge-statuscode uitgevoerd.
+BEPERKINGEN
+- Simulaties met gemockte FiveM- en bridgefuncties; geen live FiveM-server.
+- KVP-herstartlogica gesimuleerd; echte opslag en meldingsweergave live testen.
+- De bestaande bridge_check_spec kon niet draaien omdat de bridgebron ontbreekt.
+  De bestaande payment_spec vereist eveneens die ontbrekende bron.
+- Oudere new_settings_spec/revocation_spec zijn niet opnieuw gevalideerd;
+  hun fixtures lopen achter op de aangeleverde config/ambulance-uitbreiding.
+- Bridge en escrow-doorlock zijn niet aangepast of live getest.
+
+INSTALLATIECONTROLE
+- Alleen gewijzigde/nieuwe bestanden ten opzichte van aangeleverde 1.2.0 ZIP.
+- Geen verwijderde bestanden; config.lua en server_config.lua ongewijzigd.
+- Scriptversie 1.2.1; configschema 1.1.7.

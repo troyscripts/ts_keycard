@@ -36,6 +36,8 @@ local function forge()
         icon='id-card-clip',onSelect=function()
             local answer=bridge:InputDialog('Kaart vervalsen',{{type='number',label='Inventory-slot van de gestolen kaart',required=true,min=1,precision=0}})
             if not answer then return end
+            local started=lib.callback.await('ts_keycard:beginForge',false,answer[1])
+            if not started or not started.ok then return notify(started) end
             if bridge:ProgressCircle({duration=8000,label='Kaart vervalsen',canCancel=true,disable={move=true,car=true,combat=true}}) then
                 notify(lib.callback.await('ts_keycard:forge',false,answer[1]))
             end

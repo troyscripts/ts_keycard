@@ -158,15 +158,53 @@ lib.callback.register('ts_keycard:buyMaterial',function(src,index)
         return {ok=true,message=('%sx %s gekocht voor €%s.'):format(material.count,material.item,cost)}
     end)
 end)
+-- Beginmelding vóór de voortgangsbalk; voltooiing controleert alles opnieuw.
+local forgeryAttempts, forgeryAlerts = {}, {}
+lib.callback.register('ts_keycard:beginForge',function(src,slot)
+    if not TSBridgeGuard.IsReady() or not forgery.Enabled or not near(src,workshop,Config.UseDistance+0.5) then
+        return fail('Ga naar de werkbank.')
+    end
+    slot=tonumber(slot)
+    if not slot or slot<1 or slot%1~=0 then return fail('Ongeldige kaartslot.') end
+    local p=bridge:GetPlayerData(src)
+    if not p or hasJob(p,Config.Jobs,0) or hasJob(p,amb.Jobs,0) then return fail('Geen toegang tot de werkbank.') end
+    local original=inv:GetInventorySlot(src,slot)
+    if not legitimate(original) or original.metadata.owner==p.identifier then
+        return fail('Je hebt een geldige gestolen originele kaart nodig.')
+    end
+    for _,material in ipairs(forgery.Materials) do
+        local slots,err=inv:GetItemSlots(src,material.item)
+        if err then return fail('Inventory niet beschikbaar.') end
+        local count=0
+        for _,item in pairs(slots or {}) do count=count+(item.count or 0) end
+        if count<material.count then return fail(('Materiaal ontbreekt: %sx %s.'):format(material.count,material.item)) end
+    end
+    local now=GetGameTimer()
+    forgeryAttempts[src]={started=now,slot=slot,item=original.name,owner=original.metadata.owner,
+        reference=original.metadata.tsKeycardTransaction}
+    if not forgeryAlerts[src] or now-forgeryAlerts[src]>=60000 then
+        forgeryAlerts[src]=now
+        KeycardAudit.forge(src,original.metadata)
+    end
+    return {ok=true}
+end)
 lib.callback.register('ts_keycard:forge',function(src,slot)
     if not forgery.Enabled or not near(src,workshop,Config.UseDistance+0.5) then return fail('Ga naar de werkbank.') end
     slot=tonumber(slot)
     if not slot or slot<1 or slot%1~=0 then return fail('Ongeldige kaartslot.') end
     return guarded(src,function()
+        local attempt=forgeryAttempts[src]
+        local elapsed=attempt and GetGameTimer()-attempt.started
+        if not attempt or attempt.slot~=slot or elapsed<8000 or elapsed>60000 then
+            return fail('Start het vervalsen opnieuw bij de werkbank.')
+        end
+        forgeryAttempts[src]=nil
         local p=bridge:GetPlayerData(src)
         if not p or hasJob(p,Config.Jobs,0) or hasJob(p,amb.Jobs,0) then return fail('Geen toegang tot de werkbank.') end
         local original=inv:GetInventorySlot(src,slot)
         if not legitimate(original) then return fail('Je hebt een geldige gestolen originele kaart nodig.') end
+        if original.name~=attempt.item or original.metadata.owner~=attempt.owner
+            or original.metadata.tsKeycardTransaction~=attempt.reference then return fail('De kaart is veranderd.') end
         if original.metadata.owner==p.identifier then return fail('Je kunt je eigen kaart niet vervalsen.') end
         local m={owner=original.metadata.owner,ownerName=original.metadata.ownerName,
             rank=original.metadata.rank,station=original.metadata.station,job=original.metadata.job,
@@ -268,4 +306,6 @@ AddEventHandler('vlr_doorlock:stateChanged',function(playerId,doorId,locked)
         end
     end
 end)
-AddEventHandler('playerDropped',function() locks[source]=nil end)
+AddEventHandler('playerDropped',function()
+    locks[source]=nil; forgeryAttempts[source]=nil; forgeryAlerts[source]=nil
+end)

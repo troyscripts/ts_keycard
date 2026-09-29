@@ -4,7 +4,7 @@ lua54 'yes'
 name 'ts_keycard'
 author 'TroyScripts'
 description 'Politie- en ambulancekaarten met vervalsing; vereist ts_bridge 0.0.4'
-version '1.2.0'
+version '1.2.1'
 shared_scripts { '@ox_lib/init.lua', 'locales/*.lua', 'locale.lua', 'config.lua', 'bridge_check.lua', 'config_check.lua' }
 client_scripts { 'client/main.lua', 'client/extra.lua' }
 server_scripts { 'server_config.lua', 'server/audit.lua', 'server/revocation.lua', 'server/payment.lua', 'server/main.lua', 'server/extra.lua', 'server/update.lua' }

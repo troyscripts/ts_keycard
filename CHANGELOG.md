@@ -1,5 +1,16 @@
 # Changelog — ts_keycard
 
+## 1.2.1 — Diefstal- en vervalsingsmeldingen
+- Politiemelding bij bevestigde diefstal van originele politie- én ambulancekaarten.
+- Na 10 minuten een herinnering dat de kaarten handmatig mogen worden ingetrokken.
+- Opgeslagen termijnen overleven herstarts; geen dubbele melding voor dezelfde kaartreferentie en geen herinnering meer na intrekking.
+- Vervalsingsmelding bij procedurestart, ook bij later annuleren of mislukken; maximaal eenmaal per speler per 60 seconden.
+- Servercontrole vóór starten en voltooien; minimaal 8 seconden, maximaal 60 seconden en geen hergebruik van een voltooide poging.
+- Webhookfouten verhinderen de politiemelding niet.
+- README, opstarttekst, manifest en version.txt bijgewerkt naar 1.2.1.
+- Bestaande AlertJobs-export hergebruikt; geen bridgewijziging. Configschema blijft 1.1.7.
+- Uitgebreide auditregressietest en nieuwe vervalsingstest.
+
 ## Fix op 1.1.6 — geen versieaanpassing
 - Leeg ox_inventory-zoekresultaat telt als nul kaarten.
 - Korte hercontrole bij nog lopende overdrachten, met afhandeling per kaart.
