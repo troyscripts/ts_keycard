@@ -4,21 +4,21 @@ local targetResource=bridge:GetTargetResource()
 local points={}
 local entities={}
 local function notify(result)
-    bridge:Notify({id='ts_keycard_extra',title='Sleutelkaarten',description=result and result.message or 'Geen antwoord.',
+    bridge:Notify({id='ts_keycard_extra',title=TSL('extra_keycards'),description=result and result.message or TSL('extra_no_response'),
         type=result and result.ok and 'success' or 'error'},Config.NotificationCooldownMs or 5000)
 end
 local function issue(target)
-    if bridge:ProgressCircle({duration=2500,label='Ambulancekaart voorbereiden',canCancel=true,
+    if bridge:ProgressCircle({duration=2500,label=TSL('extra_preparing_ambulance_card'),canCancel=true,
         disable={move=true,car=true,combat=true}}) then
         notify(lib.callback.await('ts_keycard:issueAmbulance',false,target))
     end
 end
 local function ambulanceDesk()
     local options={
-        {title='Mijn ambulancekaart maken of bijwerken',icon='id-card',onSelect=function()
+        {title=TSL('extra_create_or_update_my_ambulance_card'),icon='id-card',onSelect=function()
             issue(GetPlayerServerId(PlayerId())) end},
-        {title='Kaart voor een collega',icon='user-plus',onSelect=function()
-            local answer=bridge:InputDialog('Ambulancekaart voor collega',{{type='number',label='Speler-ID',required=true,min=1,precision=0}})
+        {title=TSL('extra_card_for_a_colleague'),icon='user-plus',onSelect=function()
+            local answer=bridge:InputDialog(TSL('extra_ambulance_card_for_colleague'),{{type='number',label=TSL('extra_player_id'),required=true,min=1,precision=0}})
             if answer then issue(answer[1]) end
         end}
     }
@@ -26,17 +26,17 @@ local function ambulanceDesk()
     lib.showContext('ts_keycard_ambulance_desk')
 end
 local function fireIssue(target)
-    if bridge:ProgressCircle({duration=2500,label='Brandweerkaart voorbereiden',canCancel=true,
+    if bridge:ProgressCircle({duration=2500,label=TSL('extra_preparing_fire_brigade_card'),canCancel=true,
         disable={move=true,car=true,combat=true}}) then
         notify(lib.callback.await('ts_keycard:issueFirefighter',false,target))
     end
 end
 local function brandweerDesk()
     local options={
-        {title='Mijn brandweerkaart maken of bijwerken',icon='id-card',onSelect=function()
+        {title=TSL('extra_create_or_update_my_fire_brigade_card'),icon='id-card',onSelect=function()
             fireIssue(GetPlayerServerId(PlayerId())) end},
-        {title='Kaart voor een collega',icon='user-plus',onSelect=function()
-            local answer=bridge:InputDialog('Brandweerkaart voor collega',{{type='number',label='Speler-ID',required=true,min=1,precision=0}})
+        {title=TSL('extra_card_for_a_colleague'),icon='user-plus',onSelect=function()
+            local answer=bridge:InputDialog(TSL('extra_fire_brigade_card_for_colleague'),{{type='number',label=TSL('extra_player_id'),required=true,min=1,precision=0}})
             if answer then fireIssue(answer[1]) end
         end}
     }
@@ -47,34 +47,34 @@ local function forge()
     local options={}
     for i,mat in ipairs(Config.Forgery.Materials) do
         local index=i
-        options[#options+1]={title=('%sx %s'):format(mat.count,mat.item),description=('Contant: €%s'):format(mat.price),
+        options[#options+1]={title=('%sx %s'):format(mat.count,mat.item),description=(TSL('extra_cash_s')):format(mat.price),
             icon='cart-shopping',onSelect=function() notify(lib.callback.await('ts_keycard:buyMaterial',false,index)) end}
     end
-    options[#options+1]={title='Gestolen kaart vervalsen',description='Gestolen originele kaart, lege pas, chip en codeerset vereist.',
+    options[#options+1]={title=TSL('extra_forge_stolen_card'),description=TSL('extra_requires_a_stolen_original_card_blank_card_chip_and_encoding_kit'),
         icon='id-card-clip',onSelect=function()
-            local answer=bridge:InputDialog('Kaart vervalsen',{{type='number',label='Inventory-slot van de gestolen kaart',required=true,min=1,precision=0}})
+            local answer=bridge:InputDialog(TSL('extra_forge_card'),{{type='number',label=TSL('extra_inventory_slot_of_the_stolen_card'),required=true,min=1,precision=0}})
             if not answer then return end
             local started=lib.callback.await('ts_keycard:beginForge',false,answer[1])
             if not started or not started.ok then return notify(started) end
-            if bridge:ProgressCircle({duration=8000,label='Kaart vervalsen',canCancel=true,disable={move=true,car=true,combat=true}}) then
+            if bridge:ProgressCircle({duration=8000,label=TSL('extra_forge_card'),canCancel=true,disable={move=true,car=true,combat=true}}) then
                 notify(lib.callback.await('ts_keycard:forge',false,answer[1]))
             end
         end}
-    lib.registerContext({id='ts_keycard_forgery_desk',title='Illegale kaartenhandel',options=options})
+    lib.registerContext({id='ts_keycard_forgery_desk',title=TSL('extra_illegal_card_dealer'),options=options})
     lib.showContext('ts_keycard_forgery_desk')
 end
 exports('useForgeryMaterial',function(data,slot)
     if not TSBridgeGuard.IsReady() then return end
     if not Config.Forgery.Enabled then
-        return notify({message='Kaartvervalsing is uitgeschakeld.'})
+        return notify({message=TSL('extra_card_forgery_is_disabled')})
     end
     local p=points.forgery
     if not p or not p.coords then
-        return notify({message='Er is nog geen vervalspunt geplaatst. Een beheerder kan /vervalspunt gebruiken.'})
+        return notify({message=TSL('extra_no_forgery_station_has_been_placed_an_administrator_can_use_vervalspunt')})
     end
     local c=p.coords
     if #(GetEntityCoords(PlayerPedId())-vector3(c.x,c.y,c.z)) > Config.UseDistance then
-        return notify({message='Ga naar de illegale kaartenhandel om deze materialen te gebruiken.'})
+        return notify({message=TSL('extra_visit_the_illegal_card_dealer_to_use_these_materials')})
     end
     forge()
 end)
@@ -105,7 +105,7 @@ local function create(kind)
     SetBlockingOfNonTemporaryEvents(ped,true)
     if cfg.scenario and cfg.scenario~='' then TaskStartScenarioInPlace(ped,cfg.scenario,0,true) end
     bridge:AddLocalEntity(ped,{{name='ts_keycard_'..kind,
-        label=kind=='ambulance' and 'Ambulance sleutelkaarten' or kind=='firefighter' and 'Brandweer sleutelkaarten' or 'Illegale kaartenhandel',
+        label=kind=='ambulance' and TSL('extra_ambulance_keycards') or kind=='firefighter' and TSL('extra_fire_brigade_keycards') or TSL('extra_illegal_card_dealer'),
         icon='fa-solid fa-id-card',distance=Config.UseDistance,
         onSelect=kind=='ambulance' and ambulanceDesk or kind=='firefighter' and brandweerDesk or forge}})
 end
@@ -139,10 +139,10 @@ exports('useExtraCard',function(data,slot)
     bridge:UseItem(data,function(used)
         if not used then return end
         local card=lib.callback.await('ts_keycard:readExtra',false,used.slot or (slot and slot.slot) or data.slot)
-        if not card then return notify({message='Kaart ongeldig, ingetrokken of verlopen.'}) end
-        bridge:Notify({id='ts_keycard_card',title=card.kind=='ambulance' and 'Ambulancekaart' or card.kind=='firefighter' and 'Brandweerkaart' or 'Vervalste kaart',
+        if not card then return notify({message=TSL('extra_card_invalid_revoked_or_expired')}) end
+        bridge:Notify({id='ts_keycard_card',title=card.kind=='ambulance' and TSL('extra_ambulance_card') or card.kind=='firefighter' and TSL('extra_fire_brigade_card') or TSL('extra_forged_card'),
             description=('%s | %s | %s%s'):format(card.name or '?',card.rank or '?',card.station or '?',
-                card.usesRemaining and (' | '..card.usesRemaining..'/10 gebruiken over') or ''),type='inform'},
+                card.usesRemaining and (' | '..card.usesRemaining..TSL('extra_10_uses_remaining')) or ''),type='inform'},
             Config.NotificationCooldownMs or 5000)
     end)
 end)

@@ -96,9 +96,9 @@ RegisterCommand(Config.SetupCommand, function()
     if not TSBridgeGuard.IsReady() then return end
     local options = {}
     for _,entry in ipairs({
-        {value='police',label='Politie',callback='ts_keycard:canSetup'},
-        {value='ambulance',label='Ambulance',callback='ts_keycard:canSetupAmbulance'},
-        {value='firefighter',label='Brandweer',callback='ts_keycard:canSetupFirefighter'}
+        {value='police',label=TSL('extra_police'),callback='ts_keycard:canSetup'},
+        {value='ambulance',label=TSL('extra_ambulance'),callback='ts_keycard:canSetupAmbulance'},
+        {value='firefighter',label=TSL('extra_fire_brigade'),callback='ts_keycard:canSetupFirefighter'}
     }) do
         if lib.callback.await(entry.callback, false) then
             options[#options+1] = {value=entry.value,label=entry.label}
@@ -109,7 +109,7 @@ RegisterCommand(Config.SetupCommand, function()
     end
     local department = options[1].value
     if #options > 1 then
-        local choice = bridge:InputDialog('Uitgiftepunt instellen', {{type='select',label='Afdeling',required=true,options=options}})
+        local choice = bridge:InputDialog(TSL('extra_set_issuance_point'), {{type='select',label=TSL('extra_department'),required=true,options=options}})
         if not choice then return end
         department = choice[1]
     end

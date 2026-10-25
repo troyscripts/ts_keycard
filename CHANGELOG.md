@@ -1,5 +1,16 @@
 # Changelog — ts_keycard
 
+## 1.2.3 — Engels en vervalste kaarten (2026-10-25)
+- Volledige Engelse locale, inclusief ambulance, brandweer, illegale handel, console en webhooks. Bestaande extra-teksten naar beide locales verplaatst; Nederlands blijft standaard/fallback.
+- Alle drie de vervalste kaartitems delen één server-side teller. Ook legacy/admin-items zonder forged-metadata worden nu bij VLR-ontgrendeling afgeteld.
+- Geen reset van nul/ongeldige tellers; alleen de eerste opening van een metadata-loos item start bij tien en schrijft negen terug. Bestaande kaarttellers blijven behouden.
+- Metadata teruglezen na schrijven; eerst nul opslaan, dan kaart verwijderen bij het tiende gebruik. Fouten worden gelogd en de VLR-deur wordt opnieuw vergrendeld waar mogelijk.
+- VLR-toegangsitems als stringlijst, map of itemrecord herkend; tellerbericht aan speler en herkenbare consolelog per afschrijving. Een door de deur toegestane originele kaart krijgt voorrang.
+- CanUseDoor blijft uitsluitend een controle, geen verbruik. Voor andere serverkoppelingen: ConsumeForgedCardUse(playerId, slot), één keer vóór een ontgrendeling aanroepen, niet naast de VLR-teller voor dezelfde opening.
+- Brandweer- en vervalste brandweerkaartafbeeldingen toegevoegd; ox_inventory-fragment verwijst naar de nieuwe PNG-bestanden.
+- Scriptversie 1.2.3; configschema blijft 1.1.8. Geen bridgewijziging of SQL-migratie.
+- Lokale tests voor beide talen, alle drie de kaarten, tien openingen, metadata-loze items, corrupte tellers, write/readback/removal failures en herstart. Geen live FiveM-/VLR-test.
+
 ## 1.2.2 — Brandweer (2026-10-25)
 - Job firefighter: eigen kaart, NPC, uitgiftepunt, collega-uitgifte en societybetaling.
 - Brandweer toegevoegd aan lezen, deurcontrole, vervalsing, gebruiksteller, intrekking en diefstal-/overdrachtsaudit.

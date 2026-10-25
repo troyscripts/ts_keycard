@@ -1,10 +1,10 @@
-# TroyScripts — ts_keycard 1.2.2
+# TroyScripts — ts_keycard 1.2.3
 
 Brandweer (`firefighter`) toegevoegd; zie [BRANDWEER-INSTALLATIE.md](BRANDWEER-INSTALLATIE.md). Configschema: 1.1.8.
 
 Persoonlijke politie- en ambulancekaarten, aparte uitgiftepunten en illegale kaartvervalsing voor Gemert Roleplay.
 
-## Nieuw in 1.2.2
+## Nieuw in 1.2.3
 
 - Bevestigde diefstal van een originele politie- of ambulancekaart geeft direct een politiemelding met locatie.
 - Na 10 minuten volgt een melding dat de kaarten mogen worden ingetrokken. Intrekken blijft handmatig via `/kaartenintrekken`; de timer blokkeert dit command niet.
@@ -21,9 +21,9 @@ ESX, ox_lib, ox_inventory, ox_target, OneSync en **ts_bridge minimaal 0.0.4** me
 
 Start eerst de providers, daarna `ts_bridge`, daarna `ts_keycard`. Herstart na een bridgeherstart ook keycard.
 
-### Bestaande installatie bijwerken naar 1.2.2
+### Bestaande installatie bijwerken naar 1.2.3
 
-Volg [BRANDWEER-INSTALLATIE.md](BRANDWEER-INSTALLATIE.md). Het updatepakket bevat uitsluitend gewijzigde en nieuwe bestanden. Voeg de nieuwe brandweerinstellingen samen met je eigen config; configschema wordt **1.1.8**. Gebruik de meegeleverde bridge-update **1.0.8** met societyalias `firefighter` (configschema **0.0.8**). Bestaande webhookinstellingen en kaartpunten blijven behouden.
+Volg [BRANDWEER-INSTALLATIE.md](BRANDWEER-INSTALLATIE.md). Het updatepakket bevat uitsluitend gewijzigde en nieuwe bestanden. Voor 1.2.3: zie UPDATE-1.2.3.md. Voeg de nieuwe brandweerinstellingen samen met je eigen config; configschema wordt **1.1.8**. Gebruik de meegeleverde bridge-update **1.0.8** met societyalias `firefighter` (configschema **0.0.8**). Bestaande webhookinstellingen en kaartpunten blijven behouden.
 
 ### Nieuwe installatie
 
@@ -49,7 +49,7 @@ Nieuwe originele kaarten kosten standaard €10; geldige kaarten bijwerken is gr
 
 Criminelen kopen een lege sleutelpas, kaartchip en codeerset bij de illegale handel. Via het menu of gebruik van een materiaal bij de handelaar kunnen zij een gestolen originele kaart vervalsen. Eigen kaarten, politie- en ambulancepersoneel zijn uitgesloten. Bij succes worden de originele kaart en materialen verbruikt. Annuleren van de voortgangsbalk verbruikt niets.
 
-Vervalste kaarten blijven bestaan bij het intrekken van originele kaarten en hebben 10 gebruiken. Bij de bestaande VLR-koppeling wordt één gebruik afgeschreven na een gemelde ontgrendeling van een deur die de vervalste kaart expliciet als item eist. Bij het tiende gebruik wordt de kaart verwijderd. `Config.Forgery.DurationSeconds` wordt in deze versie niet gebruikt voor geldigheid.
+Vervalste kaarten blijven bestaan bij het intrekken van originele kaarten en hebben maximaal 10 deurontgrendelingen. Bij de bestaande VLR-koppeling wordt één gebruik afgeschreven na een gemelde ontgrendeling van een deur die de vervalste kaart expliciet als item eist. Bij het tiende gebruik wordt de kaart verwijderd. `Config.Forgery.DurationSeconds` wordt in deze versie niet gebruikt voor geldigheid.
 
 ## Intrekken en deuren
 
@@ -69,8 +69,12 @@ Inventory, betalingen, rechten, meldingsbezorging en updatecontrole zijn al gede
 
 `Config.Locale = 'nl'` is standaard; de nieuwe meldingen staan in `locales/nl.lua`. Ontbrekende vertalingen vallen terug op Nederlands. Bestaande extra functies bevatten ook vaste Nederlandse teksten.
 
-`fxmanifest.lua` en `version.txt` bevatten **1.2.2**. De bestaande updatecontrole gebruikt `troyscripts/ts_keycard`, standaard branch `main`. Plaats bij publiceren ook `version.txt` in de root van die branch. Updates installeren niet automatisch. Het maken van dit pakket publiceert niets op GitHub.
+`fxmanifest.lua` en `version.txt` bevatten **1.2.3**. De bestaande updatecontrole gebruikt `troyscripts/ts_keycard`, standaard branch `main`. Plaats bij publiceren ook `version.txt` in de root van die branch. Updates installeren niet automatisch. Het maken van dit pakket publiceert niets op GitHub.
 
 ## Validatie
 
 Zie `TESTRESULTATEN.txt` voor de uitgevoerde syntax- en simulatietests en hun beperkingen. De daadwerkelijke meldingsweergave, routing en VLR-werking moeten nog in jouw FiveM-server worden getest.
+
+## Engels en vervalste kaarten (1.2.3)
+
+Zie [UPDATE-1.2.3.md](UPDATE-1.2.3.md) voor de afbeeldingen, tiengebruikenteller en VLR-controle. Kies `Config.Locale = 'en'` voor Engels; configschema blijft 1.1.8.
