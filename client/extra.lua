@@ -25,6 +25,24 @@ local function ambulanceDesk()
     lib.registerContext({id='ts_keycard_ambulance_desk',title=points.ambulance.station,options=options})
     lib.showContext('ts_keycard_ambulance_desk')
 end
+local function fireIssue(target)
+    if bridge:ProgressCircle({duration=2500,label='Brandweerkaart voorbereiden',canCancel=true,
+        disable={move=true,car=true,combat=true}}) then
+        notify(lib.callback.await('ts_keycard:issueFirefighter',false,target))
+    end
+end
+local function brandweerDesk()
+    local options={
+        {title='Mijn brandweerkaart maken of bijwerken',icon='id-card',onSelect=function()
+            fireIssue(GetPlayerServerId(PlayerId())) end},
+        {title='Kaart voor een collega',icon='user-plus',onSelect=function()
+            local answer=bridge:InputDialog('Brandweerkaart voor collega',{{type='number',label='Speler-ID',required=true,min=1,precision=0}})
+            if answer then fireIssue(answer[1]) end
+        end}
+    }
+    lib.registerContext({id='ts_keycard_brandweer_desk',title=points.firefighter.station,options=options})
+    lib.showContext('ts_keycard_brandweer_desk')
+end
 local function forge()
     local options={}
     for i,mat in ipairs(Config.Forgery.Materials) do
@@ -71,7 +89,7 @@ end
 local function create(kind)
     local p=points[kind]
     if not p or not p.coords or entities[kind] then return end
-    local cfg=kind=='ambulance' and Config.Ambulance.Ped or Config.Forgery.Ped
+    local cfg=kind=='ambulance' and Config.Ambulance.Ped or kind=='firefighter' and Config.Firefighter.Ped or Config.Forgery.Ped
     local model=joaat(cfg.model)
     if not IsModelInCdimage(model) or not IsModelAPed(model) then return end
     if not pcall(lib.requestModel,model,5000) then return end
@@ -87,17 +105,17 @@ local function create(kind)
     SetBlockingOfNonTemporaryEvents(ped,true)
     if cfg.scenario and cfg.scenario~='' then TaskStartScenarioInPlace(ped,cfg.scenario,0,true) end
     bridge:AddLocalEntity(ped,{{name='ts_keycard_'..kind,
-        label=kind=='ambulance' and 'Ambulance sleutelkaarten' or 'Illegale kaartenhandel',
+        label=kind=='ambulance' and 'Ambulance sleutelkaarten' or kind=='firefighter' and 'Brandweer sleutelkaarten' or 'Illegale kaartenhandel',
         icon='fa-solid fa-id-card',distance=Config.UseDistance,
-        onSelect=kind=='ambulance' and ambulanceDesk or forge}})
+        onSelect=kind=='ambulance' and ambulanceDesk or kind=='firefighter' and brandweerDesk or forge}})
 end
 CreateThread(function()
     points=lib.callback.await('ts_keycard:extraPoints',false) or {}
     while true do
         if TSBridgeGuard.IsReady() and GetResourceState(targetResource)=='started' then
-            for _,kind in ipairs({'ambulance','forgery'}) do
+            for _,kind in ipairs({'ambulance','firefighter','forgery'}) do
                 local p=points[kind]
-                local cfg=kind=='ambulance' and Config.Ambulance.Ped or Config.Forgery.Ped
+                local cfg=kind=='ambulance' and Config.Ambulance.Ped or kind=='firefighter' and Config.Firefighter.Ped or Config.Forgery.Ped
                 if p and p.coords then
                     local c=vector3(p.coords.x,p.coords.y,p.coords.z)
                     if #(GetEntityCoords(PlayerPedId())-c)<(cfg.spawnDistance or 70) then create(kind)
@@ -109,7 +127,7 @@ CreateThread(function()
     end
 end)
 RegisterNetEvent('ts_keycard:extraPointChanged',function(kind,p)
-    if source~=65535 or (kind~='ambulance' and kind~='forgery') then return end
+    if source~=65535 or (kind~='ambulance' and kind~='firefighter' and kind~='forgery') then return end
     remove(kind); points[kind]=p
 end)
 RegisterCommand(Config.Forgery.SetupCommand,function()
@@ -122,13 +140,13 @@ exports('useExtraCard',function(data,slot)
         if not used then return end
         local card=lib.callback.await('ts_keycard:readExtra',false,used.slot or (slot and slot.slot) or data.slot)
         if not card then return notify({message='Kaart ongeldig, ingetrokken of verlopen.'}) end
-        bridge:Notify({id='ts_keycard_card',title=card.kind=='ambulance' and 'Ambulancekaart' or 'Vervalste kaart',
+        bridge:Notify({id='ts_keycard_card',title=card.kind=='ambulance' and 'Ambulancekaart' or card.kind=='firefighter' and 'Brandweerkaart' or 'Vervalste kaart',
             description=('%s | %s | %s%s'):format(card.name or '?',card.rank or '?',card.station or '?',
                 card.usesRemaining and (' | '..card.usesRemaining..'/10 gebruiken over') or ''),type='inform'},
             Config.NotificationCooldownMs or 5000)
     end)
 end)
 AddEventHandler('onResourceStop',function(resource)
-    if resource==GetCurrentResourceName() then remove('ambulance');remove('forgery') end
+    if resource==GetCurrentResourceName() then remove('ambulance');remove('firefighter');remove('forgery') end
 end)
-AddEventHandler('ts_keycard:bridgeLost',function() remove('ambulance');remove('forgery') end)
+AddEventHandler('ts_keycard:bridgeLost',function() remove('ambulance');remove('firefighter');remove('forgery') end)

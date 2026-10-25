@@ -25,3 +25,13 @@
     client = { image = 'kaartchip.png', export = 'ts_keycard.useForgeryMaterial' } },
 ['codeerset'] = { label = 'Codeerset', weight = 100, stack = true, close = true,
     client = { image = 'codeerset.png', export = 'ts_keycard.useForgeryMaterial' } },
+['brandweer_sleutelkaart'] = {
+    label = 'Brandweer sleutelkaart', weight = 10, stack = false, close = true, consume = 0,
+    description = 'Persoonlijke sleutelkaart van Brandweer Gemert.',
+    client = { image = 'lege_sleutelpas.png', export = 'ts_keycard.useExtraCard' }
+},
+['vervalste_brandweerkaart'] = {
+    label = 'Vervalste brandweerkaart', weight = 10, stack = false, close = true, consume = 0,
+    description = 'Vervalste toegangskaart voor brandweerdeuren.',
+    client = { image = 'lege_sleutelpas.png', export = 'ts_keycard.useExtraCard' }
+},

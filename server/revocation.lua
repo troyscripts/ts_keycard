@@ -11,14 +11,14 @@ function R.isStale(item)
     if type(item) ~= 'table' then return false end
     local fake = Config.Forgery and Config.Forgery.Items or {}
     -- Intrekken geldt uitsluitend voor originele uitgegeven kaarten.
-    local known = item.name == Config.Item or item.name == (Config.Ambulance or {}).Item
+    local known = item.name == Config.Item or item.name == (Config.Ambulance or {}).Item or item.name == (Config.Firefighter or {}).Item
     if not known then return false end
     local m = item.metadata or {}
     return (tonumber(m.keycardGeneration) or 0) ~= R.generation
 end
 
 local function cardItems()
-    return { Config.Item, (Config.Ambulance or {}).Item }
+    return { Config.Item, (Config.Ambulance or {}).Item, (Config.Firefighter or {}).Item }
 end
 
 local function announce(src)
@@ -117,7 +117,7 @@ lib.callback.register('ts_keycard:revokeAll', function(src)
             local id = tonumber(playerId)
             local player = bridge:GetPlayerData(id)
             local job = player and player.job
-            if job and Config.Jobs[job.name] then announce(id) end
+            if job and (Config.Jobs[job.name] or Config.Ambulance.Jobs[job.name] or Config.Firefighter.Jobs[job.name]) then announce(id) end
         end
         print((TSL('revocation_troyscripts_kaarten_ingetrokken_door_generatie_direct_verwijderd')):format(src, R.generation, removed, failed))
         if failed > 0 then
@@ -165,7 +165,7 @@ end)
 register('createItem', function(payload)
     if (tonumber((payload.metadata or {}).keycardGeneration) or 0) ~= R.generation then queue(payload.inventoryId) end
 end, { itemFilter = { [Config.Item] = true,
-    [Config.Ambulance.Item] = true } })
+    [Config.Ambulance.Item] = true, [Config.Firefighter.Item] = true } })
 
 end
 registerHooks()

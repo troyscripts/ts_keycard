@@ -1,6 +1,6 @@
 -- Vereist ts_bridge 0.0.4, vóór dit script starten. Teksten: locales/nl.lua.
 Config = {}
-Config.Version = '1.1.7' -- configschema; pas aan na overnemen van de nieuwe velden
+Config.Version = '1.1.8' -- configschema; pas aan na overnemen van de nieuwe velden
 Config.NotificationCooldownMs = 5000 -- gewone meldingen; intrekkingswaarschuwing blijft apart
 Config.Locale = 'nl' -- Hoofdtaal; teksten staan in locales/nl.lua
 Config.Item = 'politie_sleutelkaart'
@@ -18,7 +18,7 @@ Config.CardPrice = 10 -- Contant betaald door de ontvanger, alleen bij een nieuw
 Config.FreeCardMinimumGrade = 7 -- Corpsleiding krijgt nieuwe kaarten gratis.
 Config.FreeIssueMinimumGrade = 7 -- Corpsleiding mag gratis vervangende kaarten verlenen.
 -- Societybeheer staat centraal in ts_bridge.
-Config.SocietyAccount = 'police' -- Alias uit ts_bridge/server_config.lua
+Config.SocietyAccount = 'police' -- Alias uit ts_bridge/config/config.lua
 Config.PaymentAccount = 'cash' -- 'cash' of 'bank'; bank gebruikt de gekozen bridgeprovider
 Config.Ped = {
     model = 's_m_y_cop_01',
@@ -57,12 +57,24 @@ Config.Ambulance = {
     IssuancePoint = false
 }
 
+-- Brandweer: job firefighter; society-alias firefighter in ts_bridge.
+-- Rang 0: eigen kaart; rang 7: collega, gratis kaart en uitgiftepunt. Pas aan aan jouw rangen.
+Config.Firefighter = {
+    Item = 'brandweer_sleutelkaart', Jobs = { firefighter = true },
+    IssueMinimumGrade = 0, IssueOthersMinimumGrade = 7,
+    SetupMinimumGrade = 7, Price = 10, FreeMinimumGrade = 7,
+    SocietyAccount = 'firefighter',
+    Ped = { model = 's_m_y_fireman_01', scenario = 'WORLD_HUMAN_CLIPBOARD', spawnDistance = 70.0, zOffset = -1.0 },
+    -- false totdat het firefighter-uitgiftepunt met /kaartpunt wordt geplaatst.
+    IssuancePoint = false
+}
+
 -- Illegale handel: zet het verkooppunt zelf met /vervalspunt (ACE ts_keycard.admin).
 -- Materialen worden bij een geslaagde vervalsing verbruikt, samen met de gestolen kaart.
 Config.Forgery = {
     Enabled = true, Point = false, SetupCommand = 'vervalspunt',
     Ped = { model = 'g_m_y_mexgoon_02', scenario = 'WORLD_HUMAN_STAND_IMPATIENT', spawnDistance = 65.0, zOffset = -1.0 },
-    Items = { police = 'vervalste_politiekaart', ambulance = 'vervalste_ambulancekaart' },
+    Items = { police = 'vervalste_politiekaart', ambulance = 'vervalste_ambulancekaart', firefighter = 'vervalste_brandweerkaart' },
     DurationSeconds = 86400,
     Materials = {
         { item = 'lege_sleutelpas', count = 1, price = 500 },

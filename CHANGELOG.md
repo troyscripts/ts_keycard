@@ -1,5 +1,12 @@
 # Changelog — ts_keycard
 
+## 1.2.2 — Brandweer (2026-10-25)
+- Job firefighter: eigen kaart, NPC, uitgiftepunt, collega-uitgifte en societybetaling.
+- Brandweer toegevoegd aan lezen, deurcontrole, vervalsing, gebruiksteller, intrekking en diefstal-/overdrachtsaudit.
+- Items en veilige society-SQL toegevoegd; bestaande jobs, rangen en saldi blijven behouden.
+- Configschema 1.1.8; nieuwe Config.Firefighter en vervalste brandweerkaart.
+- Neutrale bestaande lege-pasafbeelding voor de nieuwe items; installatie en regressietests bijgewerkt.
+
 ## 1.2.1 — Diefstal- en vervalsingsmeldingen
 - Politiemelding bij bevestigde diefstal van originele politie- én ambulancekaarten.
 - Na 10 minuten een herinnering dat de kaarten handmatig mogen worden ingetrokken.

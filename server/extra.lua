@@ -2,6 +2,8 @@ if not TSBridgeGuard.Await() then return end
 local bridge = exports.ts_bridge
 local inv = exports.ts_bridge
 local amb = Config.Ambulance
+local fire = Config.Firefighter
+local firepoint
 local forgery = Config.Forgery
 local point, workshop
 local function decodePoint(raw)
@@ -13,12 +15,13 @@ local function decodePoint(raw)
     end
     return p
 end
-local function fromConfig(p)
+local function fromConfig(p, defaultStation)
     if not p or not p.coords then return nil end
     local c = p.coords
-    return { station = p.station or 'Ambulance Gemert', coords = { x=c.x,y=c.y,z=c.z,w=c.w or 180.0 } }
+    return { station = p.station or defaultStation or 'Ambulance Gemert', coords = { x=c.x,y=c.y,z=c.z,w=c.w or 180.0 } }
 end
 point = decodePoint(GetResourceKvpString('ambulance_issuance_point_v1')) or fromConfig(amb.IssuancePoint)
+firepoint = decodePoint(GetResourceKvpString('firefighter_issuance_point_v1')) or fromConfig(fire.IssuancePoint, 'Brandweer Gemert')
 workshop = decodePoint(GetResourceKvpString('forgery_point_v1')) or fromConfig(forgery.Point)
 local function pos(src)
     local ped = GetPlayerPed(src)
@@ -44,7 +47,7 @@ local function guarded(src, fn)
     if not ok then print('[ts_keycard] Extra kaartfunctie: ' .. tostring(result)); return fail('Handeling mislukt; bekijk de serverconsole.') end
     return result
 end
-lib.callback.register('ts_keycard:extraPoints', function() return { ambulance=point, forgery=workshop } end)
+lib.callback.register('ts_keycard:extraPoints', function() return { ambulance=point, firefighter=firepoint, forgery=workshop } end)
 lib.callback.register('ts_keycard:canSetupAmbulance', function(src)
     return TSBridgeGuard.IsReady() and (admin(src) or hasJob(bridge:GetPlayerData(src),amb.Jobs,amb.SetupMinimumGrade))
 end)
@@ -125,18 +128,90 @@ lib.callback.register('ts_keycard:issueAmbulance', function(src,target)
         return {ok=true,message=('Ambulancekaart uitgegeven aan %s (€%s).'):format(owner.name,price)}
     end)
 end)
+lib.callback.register('ts_keycard:canSetupFirefighter', function(src)
+    return TSBridgeGuard.IsReady() and (admin(src) or hasJob(bridge:GetPlayerData(src),fire.Jobs,fire.SetupMinimumGrade))
+end)
+lib.callback.register('ts_keycard:setFirefighterPoint', function(src, station)
+    if not (admin(src) or hasJob(bridge:GetPlayerData(src),fire.Jobs,fire.SetupMinimumGrade)) then return fail('Geen toestemming.') end
+    if type(station) ~= 'string' then return fail('Ongeldige naam.') end
+    station = station:gsub('%c',''):match('^%s*(.-)%s*$')
+    if #station < 1 or #station > 64 then return fail('Stationsnaam moet 1 tot 64 tekens bevatten.') end
+    local c = pos(src)
+    if not c then return fail('Positie niet beschikbaar.') end
+    firepoint = {station=station,coords={x=c.x,y=c.y,z=c.z,w=GetEntityHeading(GetPlayerPed(src))}}
+    SetResourceKvp('firefighter_issuance_point_v1',json.encode(firepoint))
+    TriggerClientEvent('ts_keycard:extraPointChanged',-1,'firefighter',firepoint)
+    KeycardAudit.point(src,firepoint)
+    print(('[ts_keycard] Brandweer-uitgiftepunt geplaatst door %s: %s'):format(src,station))
+    return {ok=true,message='Brandweer-uitgiftepunt geplaatst: '..station}
+end)
+lib.callback.register('ts_keycard:issueFirefighter', function(src,target)
+    if not TSBridgeGuard.IsReady() then return fail('Bridge niet beschikbaar.') end
+    target = tonumber(target)
+    if not target or target < 1 or target % 1 ~= 0 then return fail('Ongeldig speler-ID.') end
+    return guarded(target,function()
+        local issuer, owner = bridge:GetPlayerData(src),bridge:GetPlayerData(target)
+        local grade = src == target and fire.IssueMinimumGrade or fire.IssueOthersMinimumGrade
+        if not hasJob(issuer,fire.Jobs,grade) or not hasJob(owner,fire.Jobs,0) then return fail('Brandweerrang of ontvanger ongeldig.') end
+        if not near(src,firepoint,Config.UseDistance+0.5) or not near(target,firepoint,Config.TargetDistance)
+            or GetPlayerRoutingBucket(src) ~= GetPlayerRoutingBucket(target) then return fail('Kom samen naar de brandweer-uitgifte.') end
+        if not owner.identifier or not owner.name then return fail('Persoonsgegevens ontbreken.') end
+        local m={owner=owner.identifier,ownerName=owner.name,job=owner.job.name,
+            rank=owner.job.grade_label or owner.job.label or owner.job.name,grade=tonumber(owner.job.grade) or 0,
+            station=firepoint.station,issuedAt=os.date('!%Y-%m-%d %H:%M UTC'),
+            keycardGeneration=KeycardRevocation.generation,
+            description=('Brandweer Gemert | %s | %s'):format(owner.name,owner.job.grade_label or owner.job.name)}
+        local slots,err=inv:GetItemSlots(target,fire.Item)
+        if err then return fail('Inventory niet beschikbaar.') end
+        for _,item in pairs(slots or {}) do
+            if item.metadata and item.metadata.owner==owner.identifier and not KeycardRevocation.isStale(item) then
+                m.tsKeycardTransaction=item.metadata.tsKeycardTransaction
+                if inv:SetItemMetadata(target,item.slot,m) then return {ok=true,message='Brandweerkaart bijgewerkt.'} end
+                return fail('Kaart bijwerken mislukt.')
+            end
+        end
+        local price=(tonumber(owner.job.grade) or 0)>=fire.FreeMinimumGrade and 0 or fire.Price
+        if type(price)~='number' or price<0 or price%1~=0 then return fail('Ongeldige brandweerkaartprijs.') end
+        if not bridge:CanCarryItem(target,fire.Item,1,m) then return fail('Geen ruimte in inventory.') end
+        if price>0 and (bridge:GetMoney(target,Config.PaymentAccount) or -1)<price then return fail('Onvoldoende geld.') end
+        local account=fire.SocietyAccount
+        if price>0 then
+            local balance,resolved=bridge:GetSocietyBalance(account)
+            if balance==nil then return fail('Brandweer-society niet beschikbaar.') end
+            account=resolved
+        end
+        m.tsKeycardTransaction=('ts_keycard:firefighter:%s:%s:%s'):format(os.time(),GetGameTimer(),target)
+        local charged=false
+        if price>0 then
+            local result=bridge:RemoveMoney(target,Config.PaymentAccount,price,'Brandweer sleutelkaart')
+            if not result or not result.ok then return fail('Betaling mislukt; controleer je saldo.') end
+            charged=true
+        end
+        local added=bridge:AddItem(target,fire.Item,1,m)
+        if not added then
+            if charged then bridge:AddMoney(target,Config.PaymentAccount,price,'Terugbetaling brandweerkaart') end
+            return fail('Kaart niet toegevoegd; controleer de betaling.')
+        end
+        if charged then
+            local credited=bridge:AddSocietyMoney(account,price)
+            if not credited or not credited.ok then print('[ts_keycard] Brandweer-society bijschrijving handmatig controleren: '..m.tsKeycardTransaction) end
+        end
+        KeycardAudit.issue(src,target,m,price,Config.PaymentAccount)
+        return {ok=true,message=('Brandweerkaart uitgegeven aan %s (€%s).'):format(owner.name,price)}
+    end)
+end)
 lib.callback.register('ts_keycard:readExtra', function(src,slot)
     if type(slot)~='number' or slot<1 or slot%1~=0 then return false end
     local item=inv:GetInventorySlot(src,slot)
     if not item or type(item.metadata)~='table' then return false end
-    if item.name~=amb.Item and item.name~=forgery.Items.police and item.name~=forgery.Items.ambulance then return false end
+    if item.name~=amb.Item and item.name~=fire.Item and item.name~=forgery.Items.police and item.name~=forgery.Items.ambulance and item.name~=forgery.Items.firefighter then return false end
     if KeycardRevocation.isStale(item) then return false end
     local m=item.metadata
-    return {name=m.ownerName,rank=m.rank,station=m.station,kind=item.name==amb.Item and 'ambulance' or 'forgery',
-        usesRemaining=item.name~=amb.Item and (tonumber(m.usesRemaining) or 10) or nil}
+    return {name=m.ownerName,rank=m.rank,station=m.station,kind=item.name==amb.Item and 'ambulance' or item.name==fire.Item and 'firefighter' or 'forgery',
+        usesRemaining=item.name~=amb.Item and item.name~=fire.Item and (tonumber(m.usesRemaining) or 10) or nil}
 end)
 local function legitimate(item)
-    return item and (item.name==Config.Item or item.name==amb.Item)
+    return item and (item.name==Config.Item or item.name==amb.Item or item.name==fire.Item)
         and type(item.metadata)=='table' and item.metadata.owner and not KeycardRevocation.isStale(item)
 end
 lib.callback.register('ts_keycard:buyMaterial',function(src,index)
@@ -146,7 +221,7 @@ lib.callback.register('ts_keycard:buyMaterial',function(src,index)
     if not material then return fail('Ongeldig materiaal.') end
     return guarded(src,function()
         local p=bridge:GetPlayerData(src)
-        if not p or hasJob(p,Config.Jobs,0) or hasJob(p,amb.Jobs,0) then return fail('Geen toegang tot de illegale handel.') end
+        if not p or hasJob(p,Config.Jobs,0) or hasJob(p,amb.Jobs,0) or hasJob(p,fire.Jobs,0) then return fail('Geen toegang tot de illegale handel.') end
         local cost=material.price
         if type(cost)~='number' or cost<0 or cost%1~=0 then return fail('Ongeldige prijs.') end
         if not bridge:CanCarryItem(src,material.item,material.count) then return fail('Inventory vol.') end
@@ -167,7 +242,7 @@ lib.callback.register('ts_keycard:beginForge',function(src,slot)
     slot=tonumber(slot)
     if not slot or slot<1 or slot%1~=0 then return fail('Ongeldige kaartslot.') end
     local p=bridge:GetPlayerData(src)
-    if not p or hasJob(p,Config.Jobs,0) or hasJob(p,amb.Jobs,0) then return fail('Geen toegang tot de werkbank.') end
+    if not p or hasJob(p,Config.Jobs,0) or hasJob(p,amb.Jobs,0) or hasJob(p,fire.Jobs,0) then return fail('Geen toegang tot de werkbank.') end
     local original=inv:GetInventorySlot(src,slot)
     if not legitimate(original) or original.metadata.owner==p.identifier then
         return fail('Je hebt een geldige gestolen originele kaart nodig.')
@@ -200,7 +275,7 @@ lib.callback.register('ts_keycard:forge',function(src,slot)
         end
         forgeryAttempts[src]=nil
         local p=bridge:GetPlayerData(src)
-        if not p or hasJob(p,Config.Jobs,0) or hasJob(p,amb.Jobs,0) then return fail('Geen toegang tot de werkbank.') end
+        if not p or hasJob(p,Config.Jobs,0) or hasJob(p,amb.Jobs,0) or hasJob(p,fire.Jobs,0) then return fail('Geen toegang tot de werkbank.') end
         local original=inv:GetInventorySlot(src,slot)
         if not legitimate(original) then return fail('Je hebt een geldige gestolen originele kaart nodig.') end
         if original.name~=attempt.item or original.metadata.owner~=attempt.owner
@@ -211,7 +286,7 @@ lib.callback.register('ts_keycard:forge',function(src,slot)
             sourceItem=original.name,sourceReference=original.metadata.tsKeycardTransaction,
             keycardGeneration=KeycardRevocation.generation,forged=true,usesRemaining=10,
             forgedBy=p.identifier,description='Vervalste kaart | '..(original.metadata.station or '?')}
-        local forgedItem=original.name==Config.Item and forgery.Items.police or forgery.Items.ambulance
+        local forgedItem=original.name==Config.Item and forgery.Items.police or original.name==fire.Item and forgery.Items.firefighter or forgery.Items.ambulance
         if not bridge:CanCarryItem(src,forgedItem,1,m) then return fail('Geen ruimte voor de vervalste kaart.') end
         for _,material in ipairs(forgery.Materials) do
             local slots,err=inv:GetItemSlots(src,material.item)
@@ -248,18 +323,19 @@ end)
 -- Doorlocks moeten deze serverexport aanroepen vanuit hun eigen autorisatiepad.
 -- Nooit clientmetadata vertrouwen. Laat alleen de opgegeven afdeling door.
 exports('CanUseDoor',function(src,department)
-    if department~='police' and department~='ambulance' then return false end
+    local departmentConfig = ({police=Config, ambulance=amb, firefighter=fire})[department]
+    if not departmentConfig then return false end
     local fake=forgery.Items[department]
-    local names=department=='police' and {Config.Item,fake} or {amb.Item,fake}
+    local names={departmentConfig.Item,fake}
     for _,name in ipairs(names) do
         local slots,err=inv:GetItemSlots(src,name)
         if not err then for _,item in pairs(slots or {}) do
             if not KeycardRevocation.isStale(item) and type(item.metadata)=='table' then
                 local m=item.metadata
                 if name==fake then
-                    if m.forged==true and m.sourceItem==(department=='police' and Config.Item or amb.Item)
+                    if m.forged==true and m.sourceItem==departmentConfig.Item
                         and (tonumber(m.usesRemaining) or 10)>0 then return true end
-                elseif m.owner and m.job and (department=='police' and Config.Jobs[m.job] or amb.Jobs[m.job]) then return true end
+                elseif m.owner and m.job and departmentConfig.Jobs[m.job] then return true end
             end
         end end
     end
@@ -279,7 +355,7 @@ AddEventHandler('vlr_doorlock:stateChanged',function(playerId,doorId,locked)
     if GetResourceState('vlr_doorlock')~='started' or not TSBridgeGuard.IsReady() then return end
     local ok,door=pcall(function() return exports.vlr_doorlock:getDoor(doorId) end)
     if not ok or type(door)~='table' then return end
-    for _,name in ipairs({forgery.Items.police,forgery.Items.ambulance}) do
+    for _,name in ipairs({forgery.Items.police,forgery.Items.ambulance,forgery.Items.firefighter}) do
         if requiresItem(door,name) then
             local slots,err=inv:GetItemSlots(playerId,name)
             if err then print('[ts_keycard] Kon vervalst kaartgebruik niet tellen: '..tostring(err)); return end
