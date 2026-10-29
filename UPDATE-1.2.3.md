@@ -1,3 +1,5 @@
+> Voor de actuele volledige installatie (1.3.0): zie [INSTALLATIE.md](INSTALLATIE.md) en [JOBCARDS.md](JOBCARDS.md). Onderstaande instructies beschrijven de eerdere brandweer-/1.2.3-update; huidige config: 1.2.0, minimale bridge: 1.1.2.
+
 # Update ts_keycard 1.2.2 → 1.2.3
 
 Alleen gewijzigde/nieuwe bestanden. Installeer eerst de eerdere brandweerupdate 1.2.2 als je die nog niet hebt geplaatst. ts_bridge blijft 1.0.8. Geen SQL nodig. Geen bestanden verwijderen.

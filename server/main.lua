@@ -158,3 +158,7 @@ end)
 AddEventHandler('playerDropped', function() cooldown[source] = nil end)
 print(TSL('main_troyscripts_ts_keycard_persoonlijke_politiekaarten_geladen'))
 if not point then print(TSL('main_troyscripts_stel_het_uitgiftepunt_in_het_hb') .. Config.SetupCommand) end
+
+exports('IsAtPoliceDesk', function(src)
+    return TSBridgeGuard.IsReady() and jobAllowed(bridge:GetPlayerData(src), 0) and nearPoint(src) or false
+end)

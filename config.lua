@@ -1,6 +1,6 @@
--- Vereist ts_bridge 0.0.4, vóór dit script starten. Teksten: locales/nl.lua.
+-- Vereist ts_bridge 1.1.2, vóór dit script starten. Teksten: locales/nl.lua.
 Config = {}
-Config.Version = '1.1.8' -- configschema; pas aan na overnemen van de nieuwe velden
+Config.Version = '1.2.0' -- configschema; pas aan na overnemen van de nieuwe velden
 Config.NotificationCooldownMs = 5000 -- gewone meldingen; intrekkingswaarschuwing blijft apart
 Config.Locale = 'nl' -- Hoofdtaal; teksten staan in locales/nl.lua
 Config.Item = 'politie_sleutelkaart'
@@ -88,4 +88,37 @@ Config.UpdateCheck = {
     Enabled = true,
     Repository = 'troyscripts/ts_keycard',
     Branch = 'main' -- version.txt in deze branch
+}
+
+-- Optionele werkpassen: instellingen centraal in ts_bridge/config/config.lua > JobCards.
+-- Sleutelkaarten blijven werken wanneer 0r_idcard uitstaat.
+-- Aanvullende beroepen uit 0r_idcard. Geen ped totdat /kaartpunt is gebruikt.
+-- Jobs = ESX-jobnamen, Item = ox_inventory-item, SocietyAccount = alias uit ts_bridge/config/config.lua.
+-- Price = kosten nieuwe sleutelkaart; bijwerken gratis. Werkpassen zelf blijven gratis.
+Config.Departments = {
+    mechanic = { Label = 'Monteur', Jobs = { mechanic = true }, Item = 'monteur_sleutelkaart',
+        IssueMinimumGrade = 0, IssueOthersMinimumGrade = 7, SetupMinimumGrade = 7,
+        Price = 10, FreeMinimumGrade = 7, SocietyAccount = 'mechanic',
+        Ped = { model = 'a_m_y_business_03', scenario = 'WORLD_HUMAN_CLIPBOARD', spawnDistance = 70.0, zOffset = -1.0 },
+        IssuancePoint = false },
+    taxi = { Label = 'Taxi', Jobs = { taxi = true }, Item = 'taxi_sleutelkaart',
+        IssueMinimumGrade = 0, IssueOthersMinimumGrade = 7, SetupMinimumGrade = 7,
+        Price = 10, FreeMinimumGrade = 7, SocietyAccount = 'taxi',
+        Ped = { model = 'a_m_y_business_03', scenario = 'WORLD_HUMAN_CLIPBOARD', spawnDistance = 70.0, zOffset = -1.0 },
+        IssuancePoint = false },
+    sheriff = { Label = 'Sheriff', Jobs = { sheriff = true }, Item = 'sheriff_sleutelkaart',
+        IssueMinimumGrade = 0, IssueOthersMinimumGrade = 7, SetupMinimumGrade = 7,
+        Price = 10, FreeMinimumGrade = 7, SocietyAccount = 'sheriff',
+        Ped = { model = 'a_m_y_business_03', scenario = 'WORLD_HUMAN_CLIPBOARD', spawnDistance = 70.0, zOffset = -1.0 },
+        IssuancePoint = false },
+    justice = { Label = 'Justitie', Jobs = { justice = true }, Item = 'justitie_sleutelkaart',
+        IssueMinimumGrade = 0, IssueOthersMinimumGrade = 7, SetupMinimumGrade = 7,
+        Price = 10, FreeMinimumGrade = 7, SocietyAccount = 'justice',
+        Ped = { model = 'a_m_y_business_03', scenario = 'WORLD_HUMAN_CLIPBOARD', spawnDistance = 70.0, zOffset = -1.0 },
+        IssuancePoint = false },
+    fib = { Label = 'FIB', Jobs = { fib = true }, Item = 'fib_sleutelkaart',
+        IssueMinimumGrade = 0, IssueOthersMinimumGrade = 7, SetupMinimumGrade = 7,
+        Price = 10, FreeMinimumGrade = 7, SocietyAccount = 'fib',
+        Ped = { model = 'a_m_y_business_03', scenario = 'WORLD_HUMAN_CLIPBOARD', spawnDistance = 70.0, zOffset = -1.0 },
+        IssuancePoint = false },
 }

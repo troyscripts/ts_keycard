@@ -1,3 +1,5 @@
+> Voor de actuele volledige installatie (1.3.0): zie [INSTALLATIE.md](INSTALLATIE.md) en [JOBCARDS.md](JOBCARDS.md). Onderstaande instructies beschrijven de eerdere brandweer-/1.2.3-update; huidige config: 1.2.0, minimale bridge: 1.1.2.
+
 # Brandweer installeren — ts_keycard 1.2.3 + ts_bridge 1.0.8
 
 Job: `firefighter`. Bridgealias: `firefighter`. ESX-rekening: `society_firefighter`.

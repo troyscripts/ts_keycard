@@ -344,3 +344,10 @@ end)
 AddEventHandler('playerDropped',function()
     locks[source]=nil; forgeryAttempts[source]=nil; forgeryAlerts[source]=nil
 end)
+
+exports('IsAtServiceDesk', function(src)
+    if not TSBridgeGuard.IsReady() then return false end
+    local player = bridge:GetPlayerData(src)
+    return (hasJob(player, amb.Jobs, 0) and near(src, point, Config.UseDistance + 0.5))
+        or (hasJob(player, fire.Jobs, 0) and near(src, firepoint, Config.UseDistance + 0.5)) or false
+end)

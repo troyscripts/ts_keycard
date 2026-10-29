@@ -18,6 +18,7 @@ local function openDesk(point)
     if not TSBridgeGuard.IsReady() then return end
     local canIssueFree = lib.callback.await('ts_keycard:canIssueFree', false)
     lib.registerContext({ id = 'ts_keycard_desk', title = point.station, options = {
+        TSJobCards.option(),
         { title = TSL('main_mijn_kaart_maken_bijwerken'), description = (TSL('main_nieuw_corpsleiding_gratis_bijwerken_gratis')):format(Config.CardPrice or 10, Config.PaymentAccount == 'bank' and TSL('main_via_bank') or TSL('payment_cash')), icon = 'id-card',
             onSelect = function() issue(GetPlayerServerId(PlayerId())) end },
         { title = TSL('main_kaart_voor_een_collega'), description = (TSL('main_ontvanger_betaalt_corpsleiding_gratis_collega_moet_dichtbij')):format(Config.CardPrice or 10, Config.PaymentAccount == 'bank' and TSL('main_via_bank') or TSL('payment_cash')), icon = 'user-plus',
@@ -96,12 +97,17 @@ RegisterCommand(Config.SetupCommand, function()
     if not TSBridgeGuard.IsReady() then return end
     local options = {}
     for _,entry in ipairs({
-        {value='police',label=TSL('extra_police'),callback='ts_keycard:canSetup'},
-        {value='ambulance',label=TSL('extra_ambulance'),callback='ts_keycard:canSetupAmbulance'},
-        {value='firefighter',label=TSL('extra_fire_brigade'),callback='ts_keycard:canSetupFirefighter'}
+        {value='police',label='Politie',callback='ts_keycard:canSetup'},
+        {value='ambulance',label='Ambulance',callback='ts_keycard:canSetupAmbulance'},
+        {value='firefighter',label='Brandweer',callback='ts_keycard:canSetupFirefighter'}
     }) do
         if lib.callback.await(entry.callback, false) then
             options[#options+1] = {value=entry.value,label=entry.label}
+        end
+    end
+    for kind, cfg in pairs(Config.Departments or {}) do
+        if lib.callback.await('ts_keycard:canSetupDepartment', false, kind) then
+            options[#options+1] = {value=kind,label=cfg.Label}
         end
     end
     if #options == 0 then
@@ -109,12 +115,15 @@ RegisterCommand(Config.SetupCommand, function()
     end
     local department = options[1].value
     if #options > 1 then
-        local choice = bridge:InputDialog(TSL('extra_set_issuance_point'), {{type='select',label=TSL('extra_department'),required=true,options=options}})
+        local choice = bridge:InputDialog('Uitgiftepunt instellen', {{type='select',label='Afdeling',required=true,options=options}})
         if not choice then return end
         department = choice[1]
     end
     local answer = bridge:InputDialog(TSL('main_uitgiftepunt_instellen'), {{ type = 'input', label = TSL('input_station_name'),
         description = TSL('main_je_huidige_positie_en_kijkrichting_worden_het'), required = true, min = 1, max = 48 }})
+    if answer and Config.Departments[department] then
+        return notify(lib.callback.await('ts_keycard:setDepartmentPoint', false, department, answer[1]))
+    end
     if answer then
         notify(lib.callback.await(department == 'ambulance' and 'ts_keycard:setAmbulancePoint' or department == 'firefighter' and 'ts_keycard:setFirefighterPoint' or 'ts_keycard:setPoint', false, answer[1]))
     end

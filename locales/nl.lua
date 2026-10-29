@@ -132,7 +132,7 @@ Locales['nl'] = {
     ['payment_cash'] = 'contant',
     ['input_player_id'] = 'Speler-ID',
     ['input_station_name'] = 'Stationsnaam',
-    ['bridge_check_minimum_version'] = 'ts_bridge 0.0.4 of nieuwer vereist (API 1)',
+    ['bridge_check_minimum_version'] = 'ts_bridge 1.1.2 of nieuwer vereist (API 1)',
 }
 
 -- Webhookteksten
@@ -286,3 +286,17 @@ Locales.nl['forged_relock_failed'] = '[ts_keycard] Deur %s kon na mislukte kaart
 Locales.nl['forged_door_unreadable'] = '[ts_keycard] Deur %s: VLR-getDoor gaf geen leesbare toegangsregels; controleer de deurkoppeling.'
 Locales.nl['forged_inventory_failed'] = '[ts_keycard] Kaartinventory niet leesbaar; deur opnieuw vergrendeld.'
 Locales.nl['forged_door_result'] = '[ts_keycard] Kaartgebruik: speler %s | deur %s | %s | resultaat/resterend: %s.'
+
+Locales["nl"]["jobcards_get"] = "Mijn werkpas maken of bijwerken"
+Locales["nl"]["jobcards_title"] = "Werkpassen"
+Locales["nl"]["jobcards_unavailable"] = "Jobkaarten werken op dit moment niet. Sleutelkaarten zijn wel beschikbaar."
+Locales["nl"]["department_title"] = "Sleutelkaarten"
+Locales["nl"]["department_point_saved"] = "Uitgiftepunt opgeslagen."
+Locales["nl"]["department_wrong_job"] = "Je beroep of rang geeft geen recht op deze kaartuitgifte."
+Locales["nl"]["department_near_desk"] = "Kom samen naar het sleutelkaartloket van dit beroep."
+Locales["nl"]["department_updated"] = "Sleutelkaart bijgewerkt."
+Locales["nl"]["department_issued"] = "Sleutelkaart uitgegeven."
+Locales["nl"]["department_price_invalid"] = "Ongeldige sleutelkaartprijs in de config."
+Locales["nl"]["department_society_unavailable"] = "Bedrijfsrekening niet beschikbaar. Er is niets afgeschreven. Controleer de society in ts_bridge."
+Locales["nl"]["department_preparing"] = "Sleutelkaart voorbereiden"
+Locales["nl"]["department_invalid"] = "Sleutelkaart ongeldig of ingetrokken."

@@ -1,5 +1,16 @@
 # Changelog — ts_keycard
 
+## 1.3.0 — Gedeelde werkpasloketten (2026-10-29)
+
+- Werkpasoptie bij alle officiële sleutelkaartpeds, via ts_bridge 1.1.2 naar 0r_idcard.
+- Sleutelkaarten blijven zelfstandig werken bij gestopte/ontbrekende idcard; duidelijke melding voor werkpassen.
+- Nieuwe afdelingen mechanic, taxi, sheriff, justice en fib met eigen items, /kaartpunt, societybetaling, metadata, audit en intrekking.
+- Nieuwe afdelingen worden pas zichtbaar na het plaatsen van een uitgiftepunt.
+- Jobkaartuitgifte in idcard controleert beroep en loket server-side; eigen nieuwe passen worden bijgewerkt.
+- Ontbrekende jobkaartconfiguraties mechanic, taxi en firefighter toegevoegd met bestaande neutrale Gemert-assets.
+- Keycardconfig 1.2.0; scriptversie 1.3.0. Idcard krijgt geen versiewijziging of documentatiewijziging.
+- Installatie, README, API-uitleg, inventoryfragment en NL/EN-teksten bijgewerkt.
+
 ## 1.2.3 — Engels en vervalste kaarten (2026-10-25)
 - Volledige Engelse locale, inclusief ambulance, brandweer, illegale handel, console en webhooks. Bestaande extra-teksten naar beide locales verplaatst; Nederlands blijft standaard/fallback.
 - Alle drie de vervalste kaartitems delen één server-side teller. Ook legacy/admin-items zonder forged-metadata worden nu bij VLR-ontgrendeling afgeteld.

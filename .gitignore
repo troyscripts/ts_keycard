@@ -1,0 +1,9 @@
+*.zip
+*.log
+*.bak
+.env
+.env.*
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

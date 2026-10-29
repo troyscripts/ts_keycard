@@ -141,7 +141,10 @@ A.transfer = safe(function(payload)
     local from, to = inventoryId(payload.fromInventory), inventoryId(payload.toInventory)
     if not from or not to or tostring(from) == tostring(to) then return end
     local function track(item, old, new, oldType, newType)
-        if type(item) ~= 'table' or (item.name ~= Config.Item and item.name ~= (Config.Ambulance or {}).Item and item.name ~= (Config.Firefighter or {}).Item) then return end
+        if type(item) ~= 'table' then return end
+        local known = item.name == Config.Item or item.name == (Config.Ambulance or {}).Item or item.name == (Config.Firefighter or {}).Item
+        for _, cfg in pairs(Config.Departments or {}) do if item.name == cfg.Item then known = true end end
+        if not known then return end
         local m = {}
         for k,v in pairs(item.metadata or {}) do m[k] = v end
         local beforeOld, beforeNew = count(old, item.name, m), count(new, item.name, m)

@@ -1,0 +1,23 @@
+Validatie ts_keycard 1.3.0 / ts_bridge 1.1.2 — 2026-10-29
+
+- Lua 5.4-syntaxcontrole: 74 Lua-bestanden in de drie resources geslaagd.
+  FiveM-backtick-hashliteral voor deze parser vervangen door een numerieke placeholder;
+  het losse ox_inventory-itemfragment voor de parser in een tabel gewikkeld.
+- JavaScript syntax: aangepaste 0r_idcard/ui/js/main.js geslaagd.
+- 18 gesimuleerde bridge/jobcardchecks geslaagd: openen, gestopt/ontbrekend idcard,
+  ontbrekende export, uitgeschakelde koppeling, loketcontrole, ongeldige source,
+  gestopte keycard, eigen kaartuitgifte, geen duplicaat, afstand/beroep, foto,
+  reparatieslot/eigenaar, inventoryfout en serverblokkade bij disabled.
+- 17 gesimuleerde afdelingschecks geslaagd: eigen loket, uitgifte zonder idcard,
+  bijwerken zonder betaling, collega-rang, ontvangerbetaling, verkeerd beroep,
+  afstand, ontbrekende society zonder afschrijving, terugbetaling bij AddItem-fout,
+  onbekende afdeling, ongeldig slot, servermetadata, ingetrokken kaart,
+  geautoriseerde en ongeautoriseerde loketverplaatsing.
+- 4 gesimuleerde ped/targetchecks geslaagd: ox_target en qb-target maken bij
+  gedeelde loketten alleen de twee overige peds; standalone maakt drie peds.
+- Originele 0r_idcard/docs.md byte-voor-byte gelijk aan upload.
+- Geen versieveld toegevoegd aan 0r_idcard.
+
+Geen live FiveM/ESX/ox_inventory-/bank-/VLR-test uitgevoerd. Pasfoto/NUI, echte
+providerfouten, databaseaccounts, peds, deuren en restartgedrag moeten op de server
+worden gecontroleerd. Dit bestand beschrijft lokale mocks, geen live testresultaten.
