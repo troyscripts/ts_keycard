@@ -6,7 +6,7 @@ Nederlands (`nl`) en Engels (`en`) zijn meegeleverd. Zet in je bestaande config.
 Config.Locale = 'en' -- 'nl' voor Nederlands
 ```
 
-Herstart ts_keycard. Huidig configschema: 1.2.0. Locale bestond al.
+Herstart ts_keycard. Huidig configschema: 1.2.1. Locale bestond al.
 De manifestregel locales/*.lua laadt beide bestanden automatisch.
 
 Alle menu's, kaartlabels/NUI, foutmeldingen, webhooks, ambulance-, brandweer- en vervalsingsteksten gebruiken de gekozen taal. Nederlands blijft fallback voor ontbrekende talen/sleutels. Laat sleutels en placeholders zoals %s, %d, %.1f en \n intact. Bewerk bestanden als UTF-8.

@@ -1,6 +1,6 @@
-# TroyScripts — ts_keycard 1.3.0
+# TroyScripts — ts_keycard 1.3.1
 
-Persoonlijke sleutelkaarten voor acht beroepen, met optionele werkpassen van `0r_idcard` bij dezelfde ped. Vereist **ts_bridge 1.1.2**; configschema **1.2.0**.
+Persoonlijke sleutelkaarten voor acht beroepen, met optionele werkpassen van `0r_idcard` bij dezelfde ped. Vereist **ts_bridge 1.1.3**; configschema **1.2.1**.
 
 ## Installeren en bijwerken
 
@@ -55,6 +55,9 @@ Uitgifte, puntplaatsing en overdracht gebruiken de bestaande audit-/webhookroute
 
 ## Versies en verificatie
 
-Scriptversie **1.3.0** staat in `fxmanifest.lua` en `version.txt`; configschema **1.2.0**. De updatechecker gebruikt `troyscripts/ts_keycard`; updates worden niet automatisch geïnstalleerd. Bridge **1.1.2**, configschema **0.0.10**. Aan `0r_idcard` is geen versienummer toegevoegd en de originele documentatie is ongewijzigd.
+Scriptversie **1.3.1** staat in `fxmanifest.lua` en `version.txt`; configschema **1.2.1**. De updatechecker gebruikt `troyscripts/ts_keycard`; updates worden niet automatisch geïnstalleerd. Bridge **1.1.3**, configschema **0.1.0**. Aan `0r_idcard` is geen versienummer toegevoegd en de originele documentatie is ongewijzigd.
 
 Zie [CHANGELOG.md](CHANGELOG.md) en `TESTRESULTATEN.txt`. Lokale syntax- en gedragstests vervangen geen test op jouw FiveM-server.
+
+
+Zie [SKY-MECHANIC.md](SKY-MECHANIC.md) voor Sky-ondersteuning en installatie.

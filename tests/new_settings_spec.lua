@@ -9,7 +9,7 @@ exports=setmetatable({ts_bridge={
  GetTargetResource=function()return 'ox_target'end,
  Notify=function(_,data,cooldown)notices[#notices+1]={data=data,cooldown=cooldown}end
 }}, {__call=function()end})
-dofile('config_check.lua');assert(checked[1]=='1.1.5' and checked[2]=='1.1.5')
+dofile('config_check.lua');assert(checked[1]=='1.2.1' and checked[2]=='1.2.1')
 Config.NotificationCooldownMs=9000;dofile('config_check.lua');assert(Config.NotificationCooldownMs==9000)
 Config.NotificationCooldownMs=-1;dofile('config_check.lua');assert(Config.NotificationCooldownMs==5000)
 Config.NotificationCooldownMs=nil;Config.Version=nil;dofile('config_check.lua');assert(Config.Version==nil and Config.NotificationCooldownMs==5000)

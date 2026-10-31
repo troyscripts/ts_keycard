@@ -1,8 +1,8 @@
-# Installatie — ts_keycard 1.3.0
+# Installatie — ts_keycard 1.3.1
 
 1. Maak een back-up van de drie resources en je instellingen. Stop `ts_keycard` en andere bridge-afnemers voordat je `ts_bridge` herstart.
 2. Plaats de volledige bijgewerkte `ts_bridge`, `ts_keycard` en `0r_idcard` onder precies die namen. De naam `0r_idcard` begint met het cijfer nul.
-3. Behoud eigen webhook-URLs en serverinstellingen. Bridge: neem `JobCards` en de extra societyaliases over; configschema `0.0.10`. Keycard: neem `Config.Departments` over; configschema `1.2.0`. De aangeleverde waarden zijn behouden, maar neem eventuele wijzigingen sinds je upload zelf over.
+3. Behoud eigen webhook-URLs en serverinstellingen. Bridge: neem `JobCards` en de extra societyaliases over; configschema `0.1.0`. Keycard: neem `Config.Departments` over; configschema `1.2.1`. De aangeleverde waarden zijn behouden, maar neem eventuele wijzigingen sinds je upload zelf over.
 4. Voeg uitsluitend ontbrekende items uit `install/ox_inventory_item.lua` toe binnen `return { ... }` van `ox_inventory/data/items.lua`. De vijf nieuwe items gebruiken de reeds meegeleverde `lege_sleutelpas.png`. Kopieer de afbeelding als die nog niet in `ox_inventory/web/images` staat. Houd het bestaande `job_card`-item van idcard (`stack=false`).
 5. Controleer de ESX-jobnamen en `society_<job>`-rekeningen. Nieuwe afdelingen gebruiken mechanic, taxi, sheriff, justice en fib. Er wordt geen job of bankrekening automatisch in de database aangemaakt. Pas aliases aan bij afwijkende namen. Zonder rekening wordt een betaalde nieuwe kaart geweigerd vóór afschrijving.
 6. Start zoals hieronder. Bij gewijzigde inventory-itemdefinities heeft een volledige serverherstart de voorkeur.

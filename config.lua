@@ -1,6 +1,6 @@
--- Vereist ts_bridge 1.1.2, vóór dit script starten. Teksten: locales/nl.lua.
+-- Vereist ts_bridge 1.1.3, vóór dit script starten. Teksten: locales/nl.lua.
 Config = {}
-Config.Version = '1.2.0' -- configschema; pas aan na overnemen van de nieuwe velden
+Config.Version = '1.2.1' -- configschema; pas aan na overnemen van de nieuwe velden
 Config.NotificationCooldownMs = 5000 -- gewone meldingen; intrekkingswaarschuwing blijft apart
 Config.Locale = 'nl' -- Hoofdtaal; teksten staan in locales/nl.lua
 Config.Item = 'politie_sleutelkaart'
@@ -96,7 +96,7 @@ Config.UpdateCheck = {
 -- Jobs = ESX-jobnamen, Item = ox_inventory-item, SocietyAccount = alias uit ts_bridge/config/config.lua.
 -- Price = kosten nieuwe sleutelkaart; bijwerken gratis. Werkpassen zelf blijven gratis.
 Config.Departments = {
-    mechanic = { Label = 'Monteur', Jobs = { mechanic = true }, Item = 'monteur_sleutelkaart',
+    mechanic = { Label = 'Pech Hulp', Jobs = { mechanic = true }, Item = 'monteur_sleutelkaart',
         IssueMinimumGrade = 0, IssueOthersMinimumGrade = 7, SetupMinimumGrade = 7,
         Price = 10, FreeMinimumGrade = 7, SocietyAccount = 'mechanic',
         Ped = { model = 'a_m_y_business_03', scenario = 'WORLD_HUMAN_CLIPBOARD', spawnDistance = 70.0, zOffset = -1.0 },

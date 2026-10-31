@@ -1,3 +1,8 @@
+# 1.3.1 — 2026-10-30
+
+- Configversie en controle bijgewerkt; bestaande mechanic-afdeling en societybetaling behouden.
+- Configversie 1.2.1; metadata en actuele documentatie bijgewerkt.
+
 # Changelog — ts_keycard
 
 ## 1.3.0 — Gedeelde werkpasloketten (2026-10-29)
