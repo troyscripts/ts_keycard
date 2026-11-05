@@ -1,3 +1,9 @@
+# 1.3.2 — 2026-11-05
+
+- Vaste ElectronAC-include verwijderd uit de openbare distributie; geen anti-cheatresource vereist.
+- Installatie-instructies verduidelijkt voor andere servers; bestaande functionele dependencies blijven gelden.
+- Configuratie en gameplay ongewijzigd; behoud bestaande eigen instellingen.
+
 # 1.3.1 — 2026-10-30
 
 - Configversie en controle bijgewerkt; bestaande mechanic-afdeling en societybetaling behouden.

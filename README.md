@@ -1,10 +1,10 @@
-# TroyScripts — ts_keycard 1.3.1
+# TroyScripts — ts_keycard 1.3.2
 
 Persoonlijke sleutelkaarten voor acht beroepen, met optionele werkpassen van `0r_idcard` bij dezelfde ped. Vereist **ts_bridge 1.1.3**; configschema **1.2.1**.
 
 ## Installeren en bijwerken
 
-Dit pakket bevat de volledige resources. Maak eerst een back-up. Volg [INSTALLATIE.md](INSTALLATIE.md) en [JOBCARDS.md](JOBCARDS.md). Behoud eigen webhook-URLs en instellingen. Kopieer de nieuwe configvelden mee; alleen het versienummer wijzigen is niet voldoende.
+Deze repository bevat de resource ts_keycard. Maak eerst een back-up. Volg [INSTALLATIE.md](INSTALLATIE.md) en [JOBCARDS.md](JOBCARDS.md). Behoud eigen webhook-URLs en instellingen. Kopieer de nieuwe configvelden mee; alleen het versienummer wijzigen is niet voldoende.
 
 Vereisten: ESX, ox_lib, ox_inventory, ox_target, esx_addonaccount en OneSync. Start providers, daarna `ts_bridge`, `ts_keycard` en desgewenst `0r_idcard`. `0r_idcard` is geen dependency van keycard of bridge. Na een bridgeherstart moeten afhankelijke scripts opnieuw starten.
 
@@ -55,9 +55,13 @@ Uitgifte, puntplaatsing en overdracht gebruiken de bestaande audit-/webhookroute
 
 ## Versies en verificatie
 
-Scriptversie **1.3.1** staat in `fxmanifest.lua` en `version.txt`; configschema **1.2.1**. De updatechecker gebruikt `troyscripts/ts_keycard`; updates worden niet automatisch geïnstalleerd. Bridge **1.1.3**, configschema **0.1.0**. Aan `0r_idcard` is geen versienummer toegevoegd en de originele documentatie is ongewijzigd.
+Scriptversie **1.3.2** staat in `fxmanifest.lua` en `version.txt`; configschema **1.2.1**. De updatechecker gebruikt `troyscripts/ts_keycard`; updates worden niet automatisch geïnstalleerd. Bridge **1.1.3**, configschema **0.1.0**. Aan `0r_idcard` is geen versienummer toegevoegd en de originele documentatie is ongewijzigd.
 
 Zie [CHANGELOG.md](CHANGELOG.md) en `TESTRESULTATEN.txt`. Lokale syntax- en gedragstests vervangen geen test op jouw FiveM-server.
 
 
 Zie [SKY-MECHANIC.md](SKY-MECHANIC.md) voor Sky-ondersteuning en installatie.
+
+## Openbare distributie
+
+ElectronAC en andere anti-cheatresources zijn geen dependency van dit script. Er hoeft geen Gemert RP-specifieke includeregel te worden toegevoegd. Gebruik de hierboven beschreven functionele dependencies en configureer de ondersteunde providers, jobs en locaties voor jouw eigen server. Deze onderhoudsupdate wijzigt het configschema niet.
