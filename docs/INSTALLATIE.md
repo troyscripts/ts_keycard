@@ -1,4 +1,4 @@
-# Installatie — ts_keycard 1.3.2
+# Installatie — ts_keycard 1.3.4
 
 1. Maak een back-up van de resources die je bijwerkt en je instellingen. Stop `ts_keycard` en andere bridge-afnemers voordat je `ts_bridge` herstart.
 2. Installeer `ts_bridge` en `ts_keycard` onder precies die resourcenamen. Installeer `0r_idcard` alleen als je ook de optionele werkpassen gebruikt; die resource wordt niet meegeleverd. De naam begint met het cijfer nul.
@@ -44,3 +44,7 @@ ElectronAC en andere anti-cheatresources zijn geen dependency van dit script. Er
 ## Nieuwe mappenstructuur vanaf 1.3.3
 
 De gedeelde instellingen staan in `config/config.lua`; de alleen-serverinstellingen in `config/server.lua`. De `fxmanifest.lua` laadt ze automatisch. Kopieer inventory-afbeeldingen uit `install/images/` naar `ox_inventory/web/images/`. Raadpleeg [STRUCTUUR.md](STRUCTUUR.md). Verwijder de oude scriptmap volledig na een back-up, want losse oudere Lua-bestanden mogen niet achterblijven.
+
+## Webhooks vanaf 1.3.4
+
+Plaats `plaat_hier_jou_webhook` in `config/server.lua` zolang je geen lokale Discord-webhook wilt instellen. Vanaf ts_bridge 1.1.7 wordt de centrale route veilig gedetecteerd. Zonder lokale en centrale route is een auditbericht optioneel en geeft het geen foutmelding; politiealerts blijven los hiervan werken. Zet echte URL's nooit op een openbare GitHub-repository. Geen configschema-wijziging nodig.

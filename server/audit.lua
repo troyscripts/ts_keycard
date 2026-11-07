@@ -13,8 +13,24 @@ end
 local function send(route, fields)
     local cfg = KeycardAuditConfig or {}
     if cfg.Enabled == false or (cfg.Events or {})[route] == false then return end
+    -- Voorbeeldtekst uit de openbare distributie is géén Discord-URL.
+    -- Gebruik bij een placeholder uitsluitend de centrale bridge-route.
+    local fallback = (cfg.Webhooks or {})[route]
+    if type(fallback) ~= 'string' or fallback == 'plaat_hier_jou_webhook'
+        or fallback == 'plaats_hier_jouw_webhook' then fallback = '' end
+
+    -- De bridge vanaf 1.1.7 biedt een URL-vrije routelijst. Zonder lokale URL
+    -- én zonder centrale route is logging bewust uitgeschakeld, geen fout.
+    if fallback == '' then
+        local ok, status = pcall(function() return bridge:GetWebhookStatus() end)
+        if ok and type(status) == 'table' and type(status.configuredRoutes) == 'table' then
+            local routes = status.configuredRoutes[GetCurrentResourceName()]
+            if type(routes) ~= 'table' or routes[route] ~= true then return end
+        end
+    end
+
     local ok, accepted, reason = pcall(function()
-        return bridge:SendWebhook(route, (cfg.Webhooks or {})[route] or '', {
+        return bridge:SendWebhook(route, fallback, {
             username = 'TroyScripts • Keycard',
             embeds = {{ title = TSL('audit_title_' .. route), color = 3447003,
                 timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ'), fields = fields }}
