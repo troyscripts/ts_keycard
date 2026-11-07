@@ -1,6 +1,6 @@
-dofile('locales/nl.lua');dofile('locale.lua')
+dofile('locales/nl.lua');dofile('shared/locale.lua')
 function vector4(x,y,z,w)return {x=x,y=y,z=z,w=w}end
-dofile('config.lua')
+dofile('config/config.lua')
 local notices,commands,events,checked,update={},{},{},nil,nil
 TSBridgeGuard={Await=function()return true end,IsReady=function()return true end}
 exports=setmetatable({ts_bridge={
@@ -9,10 +9,10 @@ exports=setmetatable({ts_bridge={
  GetTargetResource=function()return 'ox_target'end,
  Notify=function(_,data,cooldown)notices[#notices+1]={data=data,cooldown=cooldown}end
 }}, {__call=function()end})
-dofile('config_check.lua');assert(checked[1]=='1.2.1' and checked[2]=='1.2.1')
-Config.NotificationCooldownMs=9000;dofile('config_check.lua');assert(Config.NotificationCooldownMs==9000)
-Config.NotificationCooldownMs=-1;dofile('config_check.lua');assert(Config.NotificationCooldownMs==5000)
-Config.NotificationCooldownMs=nil;Config.Version=nil;dofile('config_check.lua');assert(Config.Version==nil and Config.NotificationCooldownMs==5000)
+dofile('shared/config_check.lua');assert(checked[1]=='1.2.1' and checked[2]=='1.2.1')
+Config.NotificationCooldownMs=9000;dofile('shared/config_check.lua');assert(Config.NotificationCooldownMs==9000)
+Config.NotificationCooldownMs=-1;dofile('shared/config_check.lua');assert(Config.NotificationCooldownMs==5000)
+Config.NotificationCooldownMs=nil;Config.Version=nil;dofile('shared/config_check.lua');assert(Config.Version==nil and Config.NotificationCooldownMs==5000)
 dofile('server/update.lua');assert(update.Repository=='troyscripts/ts_keycard' and update.File=='version.txt' and update.Branch=='main')
 Config.UpdateCheck=nil;update=nil;dofile('server/update.lua');assert(update.Repository=='troyscripts/ts_keycard')
 Config.UpdateCheck={Enabled=false};update=nil;dofile('server/update.lua');assert(update==nil)

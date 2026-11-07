@@ -1,4 +1,4 @@
-dofile('locales/nl.lua');dofile('locale.lua')
+dofile('locales/nl.lua');dofile('shared/locale.lua')
 Config={Locale='en'}
 Locales.en={nui_name='Name'}
 assert(TSL('nui_name')=='Name')

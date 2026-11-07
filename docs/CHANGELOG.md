@@ -1,3 +1,10 @@
+# 1.3.3 — 2026-11-07
+
+- Resourcebestanden logisch ingedeeld in `config/`, `shared/`, `client/`, `server/`, `locales/` en `html/`; alle `fxmanifest.lua`-entries volgen de nieuwe paden in de bestaande laadvolgorde.
+- Handleidingen naar `docs/` verplaatst; inventory-items, afbeeldingen en SQL verdeeld over `install/items/`, `install/images/` en `install/sql/`.
+- README, handleidingen en de lokale Lua-tests aangepast aan de nieuwe locaties.
+- Geen verandering aan gameplay, events, exports, itemnamen, bestaande data of configschema 1.2.1.
+
 # 1.3.2 — 2026-11-05
 
 - Vaste ElectronAC-include verwijderd uit de openbare distributie; geen anti-cheatresource vereist.

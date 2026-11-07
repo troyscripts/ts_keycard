@@ -1,4 +1,4 @@
-dofile('locales/nl.lua'); dofile('locale.lua')
+dofile('locales/nl.lua'); dofile('shared/locale.lua')
 local ownLocale = Locales.nl
  dofile('../ts_bridge/locales/nl.lua')
  for key, value in pairs(ownLocale) do Locales.nl[key] = value end
@@ -20,8 +20,8 @@ exports=setmetatable({ts_bridge={GetStatus=function() return sideStatus or statu
 TSBridgeConfig={TargetResource='ox_target'}
 TSBridgeServer={Framework='esx',ESXResource='es_extended',InventoryResource='ox_inventory',SocietyResource='esx_addonaccount',Banking={Resource='apex_banking',Provider='apex'}}
 Config={PaymentAccount='cash'}
-local function loadGuard(which) dofile(which or 'bridge_check.lua') end
-for _,script in ipairs({'bridge_check.lua','../ts_hostage/bridge_check.lua'}) do
+local function loadGuard(which) dofile(which or 'shared/bridge_check.lua') end
+for _,script in ipairs({'shared/bridge_check.lua','../ts_hostage/bridge_check.lua'}) do
  current=script:find('hostage') and 'ts_hostage' or 'ts_keycard'
  for _,isServer in ipairs({true,false}) do
   server=isServer;state='started';sideStatus=nil;timers={}

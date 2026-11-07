@@ -1,12 +1,18 @@
-# TroyScripts — ts_keycard 1.3.2
+# TroyScripts — ts_keycard 1.3.3
 
 Persoonlijke sleutelkaarten voor acht beroepen, met optionele werkpassen van `0r_idcard` bij dezelfde ped. Vereist **ts_bridge 1.1.3**; configschema **1.2.1**.
 
 ## Installeren en bijwerken
 
-Deze repository bevat de resource ts_keycard. Maak eerst een back-up. Volg [INSTALLATIE.md](INSTALLATIE.md) en [JOBCARDS.md](JOBCARDS.md). Behoud eigen webhook-URLs en instellingen. Kopieer de nieuwe configvelden mee; alleen het versienummer wijzigen is niet voldoende.
+Deze repository bevat de resource ts_keycard. Maak eerst een back-up. Volg [INSTALLATIE.md](docs/INSTALLATIE.md) en [JOBCARDS.md](docs/JOBCARDS.md). Behoud eigen webhook-URLs en instellingen. Kopieer de nieuwe configvelden mee; alleen het versienummer wijzigen is niet voldoende.
 
 Vereisten: ESX, ox_lib, ox_inventory, ox_target, esx_addonaccount en OneSync. Start providers, daarna `ts_bridge`, `ts_keycard` en desgewenst `0r_idcard`. `0r_idcard` is geen dependency van keycard of bridge. Na een bridgeherstart moeten afhankelijke scripts opnieuw starten.
+
+## Bestandsindeling
+
+Instellingen staan in `config/config.lua` (gedeeld) en `config/server.lua` (alleen server). De bridge- en taalhelpers staan in `shared/`; de uitvoerende code blijft in `client/` en `server/`. Installatiebestanden zijn verdeeld over `install/items/`, `install/images/` en `install/sql/`. Alle handleidingen staan in [`docs/`](docs/STRUCTUUR.md). `fxmanifest.lua` is op de nieuwe paden aangepast. De resourcenaam `ts_keycard`, inventory-exports, events en persistente gegevens blijven hetzelfde.
+
+**Let op bij upgraden:** verwijder de oude resourcebestanden voordat je de volledige nieuwe map installeert en zet eigen instellingen terug in de nieuwe configuratiepaden. De configuratieschema-versie blijft **1.2.1**.
 
 ## Kaarten en loketten
 
@@ -49,18 +55,18 @@ Vervalsen blijft beperkt tot politie, ambulance en brandweer. De nieuwe afdeling
 
 ## Meldingen en taal
 
-Uitgifte, puntplaatsing en overdracht gebruiken de bestaande audit-/webhookroutes. Originele extra kaarten worden ook door de overdrachtscontrole herkend. Bestaande diefstalmeldingen en de tienminutenherinnering blijven werken; intrekken gebeurt handmatig. Pas `server_config.lua` aan voor lokale webhookfallbacks en politie-alertinstellingen. Geheime URLs blijven server-side.
+Uitgifte, puntplaatsing en overdracht gebruiken de bestaande audit-/webhookroutes. Originele extra kaarten worden ook door de overdrachtscontrole herkend. Bestaande diefstalmeldingen en de tienminutenherinnering blijven werken; intrekken gebeurt handmatig. Pas `config/server.lua` aan voor lokale webhookfallbacks en politie-alertinstellingen. Geheime URLs blijven server-side.
 
 `Config.Locale` kiest `nl` of `en`. De nieuwe keycardteksten staan in beide locales. Het bericht dat jobkaarten niet beschikbaar zijn komt uit de bridge-locale. De bestaande idcard-interface houdt zijn eigen teksten en instellingen. Extra inventory-items gebruiken voorlopig de bestaande afbeelding `lege_sleutelpas.png`; hun labels en metadata onderscheiden het beroep.
 
 ## Versies en verificatie
 
-Scriptversie **1.3.2** staat in `fxmanifest.lua` en `version.txt`; configschema **1.2.1**. De updatechecker gebruikt `troyscripts/ts_keycard`; updates worden niet automatisch geïnstalleerd. Bridge **1.1.3**, configschema **0.1.0**. Aan `0r_idcard` is geen versienummer toegevoegd en de originele documentatie is ongewijzigd.
+Scriptversie **1.3.3** staat in `fxmanifest.lua` en `version.txt`; configschema **1.2.1**. De updatechecker gebruikt `troyscripts/ts_keycard`; updates worden niet automatisch geïnstalleerd. Bridge **1.1.3**, configschema **0.1.0**. Aan `0r_idcard` is geen versienummer toegevoegd en de originele documentatie is ongewijzigd.
 
-Zie [CHANGELOG.md](CHANGELOG.md) en `TESTRESULTATEN.txt`. Lokale syntax- en gedragstests vervangen geen test op jouw FiveM-server.
+Zie [CHANGELOG.md](docs/CHANGELOG.md) en `docs/historie/TESTRESULTATEN.txt`. Lokale syntax- en gedragstests vervangen geen test op jouw FiveM-server.
 
 
-Zie [SKY-MECHANIC.md](SKY-MECHANIC.md) voor Sky-ondersteuning en installatie.
+Zie [SKY-MECHANIC.md](docs/SKY-MECHANIC.md) voor Sky-ondersteuning en installatie.
 
 ## Openbare distributie
 

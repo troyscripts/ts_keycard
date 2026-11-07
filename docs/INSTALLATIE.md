@@ -3,7 +3,7 @@
 1. Maak een back-up van de resources die je bijwerkt en je instellingen. Stop `ts_keycard` en andere bridge-afnemers voordat je `ts_bridge` herstart.
 2. Installeer `ts_bridge` en `ts_keycard` onder precies die resourcenamen. Installeer `0r_idcard` alleen als je ook de optionele werkpassen gebruikt; die resource wordt niet meegeleverd. De naam begint met het cijfer nul.
 3. Behoud eigen webhook-URLs en serverinstellingen. Bridge: neem `JobCards` en de extra societyaliases over; configschema `0.1.0`. Keycard: neem `Config.Departments` over; configschema `1.2.1`. Pas jobnamen, societyaliases, prijzen en loketten aan jouw eigen server aan.
-4. Voeg uitsluitend ontbrekende items uit `install/ox_inventory_item.lua` toe binnen `return { ... }` van `ox_inventory/data/items.lua`. De vijf nieuwe items gebruiken de reeds meegeleverde `lege_sleutelpas.png`. Kopieer de afbeelding als die nog niet in `ox_inventory/web/images` staat. Houd het bestaande `job_card`-item van idcard (`stack=false`).
+4. Voeg uitsluitend ontbrekende items uit `install/items/ox_inventory_item.lua` toe binnen `return { ... }` van `ox_inventory/data/items.lua`. De vijf nieuwe items gebruiken de reeds meegeleverde `lege_sleutelpas.png`. Kopieer de afbeelding als die nog niet in `ox_inventory/web/images` staat. Houd het bestaande `job_card`-item van idcard (`stack=false`).
 5. Controleer de ESX-jobnamen en `society_<job>`-rekeningen. Nieuwe afdelingen gebruiken mechanic, taxi, sheriff, justice en fib. Er wordt geen job of bankrekening automatisch in de database aangemaakt. Pas aliases aan bij afwijkende namen. Zonder rekening wordt een betaalde nieuwe kaart geweigerd vóór afschrijving.
 6. Start zoals hieronder. Bij gewijzigde inventory-itemdefinities heeft een volledige serverherstart de voorkeur.
 7. Plaats de extra loketten met `/kaartpunt`. Bestaande locaties blijven behouden. Per beroep bedient één keycard-ped zowel de sleutelkaart als de werkpas. Zet geen extra idcard-jobped neer.
@@ -25,7 +25,7 @@ Idcard `config.lua`: `JobCardIntegration.UseKeycardDesks=true` en `BridgeResourc
 
 Idcard `Config.Jobs` bepaalt welke beroepen een werkpas mogen krijgen. `Config.CardTypes` bepaalt hun uiterlijk. Mechanic, taxi en firefighter gebruiken een neutrale bestaande Gemert-layout met eigen werkpastitel. Police, ambulance, sheriff, justice en fib behouden hun bestaande ontwerpen. Hogere niet apart ingestelde rangen vallen in de bestaande UI terug op de basiskaart. Het item bevat de echte actuele job en rang.
 
-Zie [JOBCARDS.md](JOBCARDS.md) voor de werking en [README.md](README.md) voor rechten, betaling, intrekking en vervalsing.
+Zie [JOBCARDS.md](JOBCARDS.md) voor de werking en [README.md](../README.md) voor rechten, betaling, intrekking en vervalsing.
 
 ## Test op de server
 
@@ -39,3 +39,8 @@ Zie [JOBCARDS.md](JOBCARDS.md) voor de werking en [README.md](README.md) voor re
 ## Openbare distributie
 
 ElectronAC en andere anti-cheatresources zijn geen dependency van dit script. Er hoeft geen Gemert RP-specifieke includeregel te worden toegevoegd. Gebruik de hierboven beschreven functionele dependencies en configureer de ondersteunde providers, jobs en locaties voor jouw eigen server. Deze onderhoudsupdate wijzigt het configschema niet.
+
+
+## Nieuwe mappenstructuur vanaf 1.3.3
+
+De gedeelde instellingen staan in `config/config.lua`; de alleen-serverinstellingen in `config/server.lua`. De `fxmanifest.lua` laadt ze automatisch. Kopieer inventory-afbeeldingen uit `install/images/` naar `ox_inventory/web/images/`. Raadpleeg [STRUCTUUR.md](STRUCTUUR.md). Verwijder de oude scriptmap volledig na een back-up, want losse oudere Lua-bestanden mogen niet achterblijven.
