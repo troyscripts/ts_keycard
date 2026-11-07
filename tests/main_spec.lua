@@ -1,5 +1,5 @@
 KeycardAudit = {issue=function() end,point=function() end,revoke=function() end,transfer=function() end}
-dofile('locales/nl.lua');dofile('locale.lua')
+dofile('locales/nl.lua');dofile('shared/locale.lua')
 TSBridgeGuard={Await=function() return true end,IsReady=function() return true end}
 local vectorMeta={__sub=function(a,b) return setmetatable({x=a.x-b.x,y=a.y-b.y,z=a.z-b.z},{__len=function(v) return math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z) end}) end}
 function vector3(x,y,z) return setmetatable({x=x,y=y,z=z},vectorMeta) end
@@ -33,7 +33,7 @@ KeycardPayment={issue=function(owner,id,metadata,free)
  charged=charged+1;assert(owner==players[id]);assert(metadata.owner==players[id].identifier)
  return {ok=true,message='ok'}
 end}
-dofile('config.lua');Config.CooldownSeconds=0
+dofile('config/config.lua');Config.CooldownSeconds=0
 dofile('server/main.lua')
 local issue=callbacks['ts_keycard:issue']
 assert(issue(1,1,false).ok and charged==1)

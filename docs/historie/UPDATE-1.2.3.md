@@ -1,4 +1,4 @@
-> Voor de actuele volledige installatie (1.3.1): zie [INSTALLATIE.md](INSTALLATIE.md) en [JOBCARDS.md](JOBCARDS.md). Onderstaande instructies beschrijven de eerdere brandweer-/1.2.3-update; huidige config: 1.2.1, minimale bridge: 1.1.3.
+> Voor de actuele volledige installatie (1.3.3): zie [INSTALLATIE.md](../INSTALLATIE.md) en [JOBCARDS.md](../JOBCARDS.md). Onderstaande instructies beschrijven de eerdere brandweer-/1.2.3-update; huidige config: 1.2.1, minimale bridge: 1.1.3.
 
 # Update ts_keycard 1.2.2 → 1.2.3
 
@@ -36,4 +36,4 @@ CanUseDoor(playerId, department) is een leescontrole en schrijft niets af. Gebru
 
 Beide locales hebben dezelfde sleutels en formatplaceholders. Alle keycard Lua-tests slagen, inclusief drie afdelingen met en zonder metadata, tien ontgrendelingen, verwijdering, teller na herstart, corrupte tellers en foutafhandeling. Alle runtime-Lua is syntactisch gecontroleerd. Live VLR/FiveM blijft te testen.
 
-Afbeeldingen gemaakt met de ingebouwde imagegen op basis van de bestaande ambulancekaartstijl. Prompts: een schone rood-witte smartcard met gouden chip/vlam en tekst BRANDWEER / GEMERT; een bekraste zwarte kaart met rode strepen/vlam en diagonale tekst VERVALSTE BRANDWEER. Transparante buitenrand. Bestanden: install/brandweer_sleutelkaart.png en install/vervalste_brandweerkaart.png.
+Afbeeldingen gemaakt met de ingebouwde imagegen op basis van de bestaande ambulancekaartstijl. Prompts: een schone rood-witte smartcard met gouden chip/vlam en tekst BRANDWEER / GEMERT; een bekraste zwarte kaart met rode strepen/vlam en diagonale tekst VERVALSTE BRANDWEER. Transparante buitenrand. Bestanden: install/images/brandweer_sleutelkaart.png en install/images/vervalste_brandweerkaart.png.

@@ -1,6 +1,6 @@
 # Taal en aanpasbare teksten
 
-Nederlands (`nl`) en Engels (`en`) zijn meegeleverd. Zet in je bestaande config.lua:
+Nederlands (`nl`) en Engels (`en`) zijn meegeleverd. Zet in `config/config.lua`:
 
 ```lua
 Config.Locale = 'en' -- 'nl' voor Nederlands

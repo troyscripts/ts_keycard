@@ -1,7 +1,7 @@
-dofile('locales/nl.lua'); dofile('locale.lua')
+dofile('locales/nl.lua'); dofile('shared/locale.lua')
 Config={Item='card',Ambulance={Item='ambcard'}}
 TSBridgeGuard={Await=function() return true end,IsReady=function() return true end}
-dofile('server_config.lua')
+dofile('config/server.lua')
 local logs,timers,items,alerts={},{},{},{}
 local clock=1000
 os.time=function() return clock end

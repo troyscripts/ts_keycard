@@ -1,8 +1,8 @@
-dofile('locales/nl.lua');dofile('locale.lua')
+dofile('locales/nl.lua');dofile('shared/locale.lua')
 local vmeta={__sub=function() return setmetatable({}, {__len=function() return 0 end}) end}
 function vector3() return setmetatable({x=0,y=0,z=0},vmeta) end
 function vector4() return {x=0,y=0,z=0,w=0} end
-dofile('config.lua')
+dofile('config/config.lua')
 Config.Forgery.Point={coords={x=0,y=0,z=0,w=0}}
 TSBridgeGuard={Await=function() return true end,IsReady=function() return true end}
 local callbacks,handlers={},{}
