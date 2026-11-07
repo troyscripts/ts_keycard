@@ -4,7 +4,7 @@ lua54 'yes'
 name 'ts_keycard'
 author 'TroyScripts'
 description 'Sleutelkaarten voor beroepen en optionele 0r_idcard-werkpassen; vereist ts_bridge 1.1.3'
-version '1.3.3'
+version '1.3.4'
 
 -- Laadvolgorde behouden: vertalingen, configuratie, bridge, controle.
 shared_scripts {

@@ -1,0 +1,57 @@
+name: ts_keycard controles en volledig ZIP
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Installeer Lua 5.4
+        run: sudo apt-get update && sudo apt-get install -y lua5.4
+      - name: Controleer Lua-syntax
+        run: |
+          set -eu
+          find client server shared config locales -type f -name '*.lua' -print0 | while IFS= read -r -d '' file; do
+            luac5.4 -p "$file"
+          done
+      - name: Test webhook-placeholder
+        run: lua5.4 tests/webhook_placeholder_spec.lua
+      - name: Test audit regressie
+        run: lua5.4 tests/audit_spec.lua
+      - name: Controleer versies en manifest
+        run: |
+          python3 - <<'PYTHON'
+          from pathlib import Path
+          import re
+          m = Path('fxmanifest.lua').read_text()
+          assert re.search(r"version '1.3.4'", m)
+          assert Path('version.txt').read_text().strip() == '1.3.4'
+          for path in re.findall(r"['\"]([^'\"]+\.(?:lua|css|js|html|svg))['\"]", m):
+              if path.startswith('@'): continue
+              if '*' in path:
+                  assert list(Path('.').glob(path)), path
+              else:
+                  assert Path(path).exists(), path
+          print('Manifest en releaseversie OK')
+          PYTHON
+      - name: Bouw complete ts_keycard ZIP
+        run: |
+          python3 - <<'PYTHON'
+          from pathlib import Path
+          from zipfile import ZipFile,ZIP_DEFLATED
+          path = Path('ts_keycard_1.3.4_compleet.zip')
+          with ZipFile(path,'w',ZIP_DEFLATED) as z:
+              for p in sorted(Path('.').rglob('*')):
+                  if not p.is_file() or p==path or '.git' in p.parts or '.github' in p.parts: continue
+                  z.write(p,'ts_keycard/'+p.as_posix())
+          with ZipFile(path) as z:
+              assert z.testzip() is None
+              assert 'ts_keycard/config/server.lua' in z.namelist()
+          print(path,path.stat().st_size)
+          PYTHON
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ts_keycard_1.3.4_compleet
+          path: ts_keycard_1.3.4_compleet.zip
+          retention-days: 30

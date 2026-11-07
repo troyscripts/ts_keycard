@@ -1,3 +1,10 @@
+# 1.3.4 — 2026-11-07
+
+- Openbare webhookplaceholder `plaat_hier_jou_webhook` wordt niet meer als Discord-URL aangeboden.
+- `ts_bridge` 1.1.7 kan veilig aangeven of een centrale route werkelijk geconfigureerd is; ontbrekende routes worden zonder foutmelding overgeslagen.
+- Correcte lokale URL's en centrale routes houden voorrang en blijven werken. Geen wijzigingen aan politie-alerts, betalingen, kaarten of game-events.
+- Configschema blijft 1.2.1; scriptversie naar 1.3.4.
+
 # 1.3.3 — 2026-11-07
 
 - Resourcebestanden logisch ingedeeld in `config/`, `shared/`, `client/`, `server/`, `locales/` en `html/`; alle `fxmanifest.lua`-entries volgen de nieuwe paden in de bestaande laadvolgorde.

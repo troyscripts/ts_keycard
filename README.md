@@ -1,4 +1,4 @@
-# TroyScripts — ts_keycard 1.3.3
+# TroyScripts — ts_keycard 1.3.4
 
 Persoonlijke sleutelkaarten voor acht beroepen, met optionele werkpassen van `0r_idcard` bij dezelfde ped. Vereist **ts_bridge 1.1.3**; configschema **1.2.1**.
 
@@ -53,6 +53,12 @@ Nieuwe sleutelkaarten kosten standaard €10; bijwerken is gratis. De ontvanger 
 
 Vervalsen blijft beperkt tot politie, ambulance en brandweer. De nieuwe afdelingen krijgen originele sleutelkaarten, geen nieuwe vervalste varianten. Bestaande materialen en tiengebruikenteller blijven behouden. De VLR-teller vereist `vlr_doorlock:stateChanged` en de `getDoor`-export. `Config.Forgery.DurationSeconds` is geen geldigheidsduur voor de huidige teller.
 
+## Webhookplaceholder en centrale routes (1.3.4)
+
+In `config/server.lua` mag per route de voorbeeldtekst `plaat_hier_jou_webhook` blijven staan. De auditmodule verzendt deze tekst **nooit** als Discord-URL. Als een centrale route in `ts_bridge/config/webhook_config.lua` is ingesteld, wordt die gebruikt; zonder centrale of lokale URL is logging van die gebeurtenis bewust uitgeschakeld. De nieuwste bridge (1.1.7) geeft daarvoor een URL-vrij routeoverzicht. Bij een oudere bridge blijft het script compatibel, maar kan de bestaande melding over een ontbrekende webhook nog optreden.
+
+Gebruik uitsluitend echte webhook-URL's in lokale server-only configuratiebestanden en publiceer deze niet op GitHub.
+
 ## Meldingen en taal
 
 Uitgifte, puntplaatsing en overdracht gebruiken de bestaande audit-/webhookroutes. Originele extra kaarten worden ook door de overdrachtscontrole herkend. Bestaande diefstalmeldingen en de tienminutenherinnering blijven werken; intrekken gebeurt handmatig. Pas `config/server.lua` aan voor lokale webhookfallbacks en politie-alertinstellingen. Geheime URLs blijven server-side.
@@ -61,7 +67,7 @@ Uitgifte, puntplaatsing en overdracht gebruiken de bestaande audit-/webhookroute
 
 ## Versies en verificatie
 
-Scriptversie **1.3.3** staat in `fxmanifest.lua` en `version.txt`; configschema **1.2.1**. De updatechecker gebruikt `troyscripts/ts_keycard`; updates worden niet automatisch geïnstalleerd. Bridge **1.1.3**, configschema **0.1.0**. Aan `0r_idcard` is geen versienummer toegevoegd en de originele documentatie is ongewijzigd.
+Scriptversie **1.3.4** staat in `fxmanifest.lua` en `version.txt`; configschema **1.2.1**. De updatechecker gebruikt `troyscripts/ts_keycard`; updates worden niet automatisch geïnstalleerd. Bridge **1.1.3**, configschema **0.1.0**. Aan `0r_idcard` is geen versienummer toegevoegd en de originele documentatie is ongewijzigd.
 
 Zie [CHANGELOG.md](docs/CHANGELOG.md) en `docs/historie/TESTRESULTATEN.txt`. Lokale syntax- en gedragstests vervangen geen test op jouw FiveM-server.
 
